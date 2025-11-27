@@ -1,4 +1,4 @@
-999, test@demo.com, File User, STUDENT
-999, test@demo.com, File User, STUDENT
-999, test@demo.com, File User, STUDENT
-999, test@demo.com, File User, STUDENT
+999, test@demo.com, File User 3, STUDENT
+989, test2@demo.com, File User 1, STUDENT
+992, test@demo.com, File User 2, PROFESSOR
+993, test4@demo.com, File User 4, ADMIN
