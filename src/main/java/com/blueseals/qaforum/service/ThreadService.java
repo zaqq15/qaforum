@@ -27,7 +27,7 @@ public class ThreadService {
         return threadRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
     }
 
-    public ForumThread getPostById(Long threadId) {
+    public ForumThread getThreadById(Long threadId) {
         return threadRepository.findById(threadId)
                 .orElseThrow(() -> new RuntimeException("Thread not found"));
     }
@@ -46,13 +46,13 @@ public class ThreadService {
 
         ForumThread savedThread = threadRepository.save(thread);
 
-        // create first post (question body)
+        // create the first post (question body)
         Post firstPost = new Post();
         firstPost.setContentText(content);
         firstPost.setThread(savedThread);
         firstPost.setCreatedAt(LocalDateTime.now());
 
-        // anonimity logic : user is linked => view handles hiding student info
+        // anonymity logic: user is linked => view handles hiding student info
         firstPost.setUser(author);
 
 
