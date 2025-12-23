@@ -14,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/courses")
 public class CourseController {
@@ -54,5 +56,21 @@ public class CourseController {
         threadService.createThread(id, title, content, author);
 
         return "redirect:/courses/" + id;
+    }
+    @GetMapping("/{id}/search")
+    public String searchCourseThreads(@PathVariable Long id,
+                                      @RequestParam String query,
+                                      @AuthenticationPrincipal UserDetails userDetails,
+                                      Model model) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        List<ForumThread> results = threadService.searchThreadsinCourse(id, query);
+
+        model.addAttribute("course", course); // Needed for "Back to Course" links
+        model.addAttribute("query", query);
+        model.addAttribute("results", results);
+
+        return "search_results";
     }
 }

@@ -9,5 +9,7 @@ public interface ForumThreadRepository extends JpaRepository<ForumThread, Long> 
     // get all threads for a specific course, newest -> oldest
     List<ForumThread> findByCourseIdOrderByCreatedAtDesc(Long courseId);
 
+    List<ForumThread> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String title, String description);
+
 
 }

@@ -9,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ThreadService {
@@ -30,6 +34,54 @@ public class ThreadService {
     public ForumThread getThreadById(Long threadId) {
         return threadRepository.findById(threadId)
                 .orElseThrow(() -> new RuntimeException("Thread not found"));
+    }
+
+    /**
+     * context-aware search
+     * ranks threads based on keyword relevance in title and description
+     */
+    public List<ForumThread> searchThreadsinCourse(Long courseId, String query) {
+        if(query == null || query.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        String[] keywords = query.toLowerCase().split("\\s+");
+
+        // fetch broad candidates from DB (anything matching at least one part)
+        List<ForumThread> candidates =  threadRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
+        // if query has multiple words, fetch all for maximum accuracy in ranking
+        if(candidates.isEmpty() || keywords.length > 1) {
+            candidates = threadRepository.findAll();
+        }
+
+        // score and rank
+        Map<ForumThread, Integer> scores = new HashMap<>();
+
+        for (ForumThread thread : candidates) {
+            int score = 0;
+            String title = thread.getTitle().toLowerCase();
+            String description = thread.getDescription() != null ? thread.getDescription().toLowerCase() : "";
+
+            for (String word : keywords) {
+                // exact word match in title is heavily weighted
+                if(title.contains(word)) {
+                    score += 10;
+                }
+                // match in description is weighted less
+                if(description.contains(word)) {
+                    score += 3;
+                }
+            }
+            if(score > 0) {
+                scores.put(thread, score);
+            }
+        }
+
+        // sort by score and return list
+        return scores.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     @Transactional
