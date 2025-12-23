@@ -1,7 +1,9 @@
 package com.blueseals.qaforum.config;
 
+import com.blueseals.qaforum.model.Course;
 import com.blueseals.qaforum.model.Role;
 import com.blueseals.qaforum.model.User;
+import com.blueseals.qaforum.repository.CourseRepository;
 import com.blueseals.qaforum.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -18,6 +20,8 @@ public class DataInitializer {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private CourseRepository courseRepository;
     @Bean
     public CommandLineRunner initData() {
         return args -> {
@@ -55,6 +59,20 @@ public class DataInitializer {
                 userRepository.save(student);
             }
 
+
+            if(courseRepository.findByCourseCode("CS01") == null) {
+                Course course = new Course();
+                course.setCourseCode("CS01");
+                course.setTitle("Algorithms and Data Structures");
+                course.setDescription("The first CS course");
+                User prof = userRepository.findByEmail("prof@email.com")
+                                .orElseThrow(() -> new RuntimeException("Professor not found"));
+                course.setProfessor(prof);
+                courseRepository.save(course);
+
+
+
+            }
             System.out.println("--- Database seeded successfully ---");
             System.out.println("Admin Login: admin@email.com / admin123");
 
