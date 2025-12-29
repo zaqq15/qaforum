@@ -45,4 +45,12 @@ public class CourseService {
         course.getStudents().add(student);
         courseRepository.save(course);
     }
+
+    public List<Course> getCoursesForStudent(Long studentId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        return courseRepository.findAll().stream()
+                .filter(course -> course.getStudents().contains(student))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

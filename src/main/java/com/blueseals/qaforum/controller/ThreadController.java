@@ -28,6 +28,15 @@ public class ThreadController {
         model.addAttribute("thread", thread);
         model.addAttribute("username", userDetails.getUsername());
 
+        User threadAuthor = thread.getPosts().isEmpty() ? null : thread.getPosts().get(0).getUser();
+        String currentEmail = userDetails.getUsername();
+        boolean isAuthor = threadAuthor != null && threadAuthor.getEmail().equals(currentEmail);
+
+        User currentUser = userService.findByEmail(currentEmail);
+        boolean canMark = isAuthor || currentUser.getRole().name().equals("PROFESSOR") || currentUser.getRole().name().equals("ADMIN");
+
+        model.addAttribute("canMark", canMark);
+
         return "thread_view";
     }
 
@@ -37,6 +46,14 @@ public class ThreadController {
 
         User author = userService.findByEmail(userDetails.getUsername());
         threadService.addReply(id, content, author);
+
+        return "redirect:/thread/" + id;
+    }
+
+    @PostMapping("/thread/{id}/mark/{postId}")
+    public String markAccepted(@PathVariable Long id, @PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByEmail(userDetails.getUsername());
+        threadService.markAsAccepted(postId, user);
 
         return "redirect:/thread/" + id;
     }

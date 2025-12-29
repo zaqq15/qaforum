@@ -126,6 +126,31 @@ public class ThreadService {
         return postRepository.save(reply);
     }
 
+    @Transactional
+    public void markAsAccepted(Long postId, User currentUser) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        ForumThread thread = post.getThread();
+
+        // only the thread creator or a professor/admin can mark a post as accepted
+        Post originalPost = thread.getPosts().get(0);
+        User threadAuthor = originalPost.getUser();
+
+        boolean isThreadAuthor = threadAuthor != null && threadAuthor.getId().equals(currentUser.getId());
+        boolean isProfessorOrAdmin = currentUser.getRole().equals(Role.PROFESSOR) || currentUser.getRole().equals(Role.ADMIN);
+
+        if(!isThreadAuthor && !isProfessorOrAdmin) {
+            throw new RuntimeException("Only the thread creator or a professor/admin can mark a post as accepted");
+        }
+
+        for (Post p : thread.getPosts()) {
+            p.setAccepted(false);
+        }
+
+        post.setAccepted(true);
+        postRepository.saveAll(thread.getPosts());
+    }
+
 }
 
 

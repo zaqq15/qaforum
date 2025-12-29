@@ -19,6 +19,9 @@ public class Post {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean accepted = false;
+
     @ManyToOne
     @JoinColumn(name = "thread_id", nullable = false)
     private ForumThread thread;
