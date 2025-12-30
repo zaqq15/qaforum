@@ -6,9 +6,8 @@ import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    // find all courses taught by a specific professor
-    List<Course> findByProfessor_Id(Long professorId);
-
     // find a course by its unique code
     Course findByCourseCode(String courseCode);
+
+    List<Course> findByProfessorId(Long professorId);
 }

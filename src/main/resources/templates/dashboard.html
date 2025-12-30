@@ -9,16 +9,12 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Welcome, <span th:text="${username}">User</span>!</h1>
-
-        <div class="d-flex gap-2">
-            <!-- Logout -->
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-outline-danger">Logout</button>
-            </form>
-        </div>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-outline-danger">Logout</button>
+        </form>
     </div>
 
-    <!-- Professor/Admin Section: Create Course -->
+    <!-- Create Course Section (Professors/Admins Only) -->
     <div class="card shadow-sm border-0 mb-5" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
         <div class="card-header bg-dark text-white pt-3 px-4">
             <h5 class="mb-0 fw-bold">Course Management</h5>
@@ -29,15 +25,15 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="title" class="form-label">Course Title</label>
-                        <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Intro to Computer Science" required>
+                        <input type="text" class="form-control" name="title" placeholder="e.g. Intro to Computer Science" required>
                     </div>
                     <div class="col-md-6">
                         <label for="courseCode" class="form-label">Course Code</label>
-                        <input type="text" class="form-control" id="courseCode" name="courseCode" placeholder="e.g. CS-101" required>
+                        <input type="text" class="form-control" name="courseCode" placeholder="e.g. CS-101" required>
                     </div>
                     <div class="col-12">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="2" placeholder="Brief description of the course..." required></textarea>
+                        <textarea class="form-control" name="description" rows="2" placeholder="Brief description..." required></textarea>
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-success">Create Course</button>
@@ -47,64 +43,15 @@
         </div>
     </div>
 
-    <!-- Professor/Admin Section: Course Administration (Replaces Available Courses for non-students) -->
-    <div class="card shadow-sm border-0 mb-5" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
-        <div class="card-header bg-secondary text-white pt-3 px-4">
-            <h5 class="mb-0 fw-bold">All Courses (Administration)</h5>
-        </div>
-        <div class="card-body">
-            <!-- We can reuse 'availableCourses' list here since for admin/prof 'myCourses' is empty usually,
-                 so 'availableCourses' contains everything. Or we can just iterate 'availableCourses' + 'myCourses'
-                 if needed, but based on MainController logic, 'availableCourses' has what they are not enrolled in.
-                 Professors are not technically 'enrolled' as students in their own courses in the current logic.
-                 Ideally, MainController should pass 'allCourses' for admins.
-                 Assuming 'availableCourses' effectively holds all courses for a professor who isn't a student.
-            -->
-            <div th:if="${availableCourses.empty}" class="text-muted text-center py-4">
-                No courses found in the system.
-            </div>
-
-            <div class="row row-cols-1 row-cols-md-2 g-3" th:unless="${availableCourses.empty}">
-                <div class="col" th:each="course : ${availableCourses}">
-                    <div class="card h-100 border-start border-4 border-start-secondary shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title mb-0">
-                                    <a th:href="@{/courses/{id}(id=${course.id})}" class="text-decoration-none text-dark stretched-link">
-                                        <span th:text="${course.title}">Course Name</span>
-                                    </a>
-                                </h5>
-                                <span class="badge bg-light text-secondary border" th:text="${course.courseCode}">CODE</span>
-                            </div>
-                            <p class="card-text text-muted small text-truncate" th:text="${course.description}">Desc...</p>
-                            <small class="text-muted">
-                                Prof: <span th:text="${course.professor.fullName}">Name</span>
-                            </small>
-                            <!-- Manage Course Button: Visible only if user is the assigned professor OR an Admin -->
-                            <div class="mt-2 text-end position-relative" style="z-index: 2;"
-                                 th:if="${#authentication.name == course.professor.email or #authorization.expression('hasRole(''ADMIN'')')}">
-                                <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-sm btn-outline-dark">Manage Course</a>
-                            </div>
-                            <!-- View Only Button: Visible if user is a Professor but NOT the assigned one -->
-                            <div class="mt-2 text-end position-relative" style="z-index: 2;"
-                                 th:if="${#authentication.name != course.professor.email and !#authorization.expression('hasRole(''ADMIN'')')}">
-                                <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-sm btn-outline-secondary">View Course</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- My Courses Section (Student Only) -->
-    <div class="card shadow-sm border-0 mb-5" sec:authorize="hasRole('STUDENT')">
+    <!-- My Courses Section (For Students AND Professors) -->
+    <div class="card shadow-sm border-0 mb-5">
         <div class="card-header bg-primary text-white pt-3 px-4">
             <h5 class="mb-0 fw-bold">My Courses</h5>
         </div>
         <div class="card-body">
             <div th:if="${myCourses.empty}" class="text-muted text-center py-4">
-                You are not enrolled in any courses yet.
+                <span sec:authorize="hasRole('STUDENT')">You are not enrolled in any courses yet.</span>
+                <span sec:authorize="hasRole('PROFESSOR')">You are not teaching any courses yet.</span>
             </div>
 
             <div class="row row-cols-1 row-cols-md-2 g-3" th:unless="${myCourses.empty}">
@@ -121,8 +68,12 @@
                             </div>
                             <p class="card-text text-muted small text-truncate" th:text="${course.description}">Desc...</p>
                             <small class="text-muted">
-                                Prof: <span th:text="${course.professor.fullName}">Name</span>
+                                Prof: <span th:text="${course.professor != null ? course.professor.fullName : 'None'}">Name</span>
                             </small>
+                            <!-- Manage Button for Professor -->
+                            <div class="mt-2" sec:authorize="hasRole('PROFESSOR')">
+                                <span class="badge bg-success">Instructor</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -130,7 +81,7 @@
         </div>
     </div>
 
-    <!-- Available Courses Section (Student Only) -->
+    <!-- Available Courses Section (For Students to Enroll) -->
     <div class="card shadow-sm border-0" sec:authorize="hasRole('STUDENT')">
         <div class="card-header bg-white border-bottom-0 pt-4 px-4">
             <h5 class="mb-0 text-secondary fw-bold">Available Courses to Join</h5>
@@ -147,10 +98,9 @@
                             <h6 class="mb-1 fw-bold" th:text="${course.title}">Course Name</h6>
                             <small class="text-muted" th:text="${course.courseCode}">CODE</small>
                             <span class="text-muted mx-2">|</span>
-                            <small class="text-muted" th:text="${course.professor.fullName}">Prof</small>
+                            <small class="text-muted" th:text="${course.professor != null ? course.professor.fullName : 'None'}">Prof</small>
                         </div>
 
-                        <!-- Enroll Button (Students Only) -->
                         <form th:action="@{/courses/{id}/enroll(id=${course.id})}" method="post">
                             <button type="submit" class="btn btn-sm btn-outline-primary">Enroll</button>
                         </form>

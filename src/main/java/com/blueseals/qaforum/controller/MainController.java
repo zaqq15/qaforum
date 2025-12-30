@@ -40,16 +40,17 @@ public class MainController {
         User currentUser = userService.findByEmail(userDetails.getUsername());
 
         List<Course> allCourses = courseService.getAllCourses();
-        List<Course> myCourses = new ArrayList<>();
+        List<Course> myCourses;
 
         if (currentUser.getRole() == Role.STUDENT) {
             myCourses = courseService.getCoursesForStudent(currentUser.getId());
         } else if (currentUser.getRole() == Role.PROFESSOR) {
-            myCourses = allCourses.stream()
-                    .filter(c -> c.getProfessor() != null && c.getProfessor().getEmail().equals(currentUser.getEmail()))
-                    .collect(Collectors.toList());
+            myCourses = courseService.getCoursesForProfessor(currentUser.getId());
+
         }
         else if (currentUser.getRole() == Role.ADMIN) {
+            myCourses = courseService.getAllCourses();
+        } else {
             myCourses = new ArrayList<>();
         }
 

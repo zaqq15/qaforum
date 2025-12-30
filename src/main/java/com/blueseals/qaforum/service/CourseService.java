@@ -53,4 +53,8 @@ public class CourseService {
                 .filter(course -> course.getStudents().contains(student))
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    public List<Course> getCoursesForProfessor(Long professorId) {
+        return courseRepository.findByProfessorId(professorId);
+    }
 }
