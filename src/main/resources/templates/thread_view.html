@@ -71,7 +71,7 @@
             <p class="card-text" th:text="${post.contentText}">Reply content...</p>
 
             <!-- NEW: File Attachment Display -->
-            <div th:if="${post.fileName != null}" class="mt-2 mb-2 p-2 bg-light rounded border d-inline-block">
+            <div th:if="${post.fileName != null and !#strings.isEmpty(post.fileName)}" class="mt-2 mb-2 p-2 bg-light rounded border d-inline-block">
                 <span style="font-size: 1.2rem;">&#128206;</span> <!-- Paperclip Icon -->
                 <a th:href="@{/download/post/{id}(id=${post.id})}" target="_blank" class="text-decoration-none fw-bold text-dark">
                     <span th:text="${post.fileName}">file.txt</span>

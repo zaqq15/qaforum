@@ -76,7 +76,7 @@ public class ThreadController {
         }
 
         return ResponseEntity.ok()
-                .header("HttpHeaders.CONTENT_DISPOSITION, attachment; filename=\"" + post.getFileName() + "\"")
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + post.getFileName() + "\"")
                 .contentType(MediaType.parseMediaType(post.getFileType() != null ? post.getFileType() : "application/octet-stream"))
                 .body(post.getFileData());
     }
