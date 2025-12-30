@@ -70,12 +70,17 @@
 
             <p class="card-text" th:text="${post.contentText}">Reply content...</p>
 
+            <!-- NEW: File Attachment Display -->
+            <div th:if="${post.fileName != null}" class="mt-2 mb-2 p-2 bg-light rounded border d-inline-block">
+                <span style="font-size: 1.2rem;">&#128206;</span> <!-- Paperclip Icon -->
+                <a th:href="@{/download/post/{id}(id=${post.id})}" target="_blank" class="text-decoration-none fw-bold text-dark">
+                    <span th:text="${post.fileName}">file.txt</span>
+                </a>
+                <!-- Optional: Show file type -->
+                <!-- <span class="text-muted small ms-2" th:text="'(' + ${post.fileType} + ')'">type</span> -->
+            </div>
+
             <!-- Mark as Correct Button -->
-            <!-- Show only if:
-                 1. CanMark is true (Viewer is Author/Admin/Prof)
-                 2. This is NOT the accepted answer yet
-                 3. This is NOT the first post (question itself)
-            -->
             <div th:if="${canMark and !post.accepted and iterStat.index > 0}" class="mt-2 pt-2 border-top">
                 <form th:action="@{/thread/{id}/mark/{postId}(id=${thread.id}, postId=${post.id})}" method="post">
                     <button type="submit" class="btn btn-sm btn-outline-success">
@@ -90,10 +95,18 @@
     <div class="card bg-light border-0 mt-4">
         <div class="card-body">
             <h5 class="card-title">Add a Reply</h5>
-            <form th:action="@{/thread/{id}/reply(id=${thread.id})}" method="post">
+            <!-- ADDED enctype="multipart/form-data" -->
+            <form th:action="@{/thread/{id}/reply(id=${thread.id})}" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <textarea name="content" class="form-control" rows="3" placeholder="Type your answer or comment here..." required></textarea>
                 </div>
+
+                <!-- NEW: File Upload Input -->
+                <div class="mb-3">
+                    <label class="form-label small text-muted">Attach File (Optional)</label>
+                    <input type="file" name="file" class="form-control form-control-sm">
+                </div>
+
                 <button type="submit" class="btn btn-primary">Post Reply</button>
             </form>
         </div>

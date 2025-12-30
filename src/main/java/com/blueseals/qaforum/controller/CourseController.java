@@ -15,7 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -59,10 +61,11 @@ public class CourseController {
     public String createThread(@PathVariable Long id,
                                @RequestParam String title,
                                @RequestParam String content,
-                               @AuthenticationPrincipal UserDetails userDetails) {
+                               @RequestParam(required = false) MultipartFile file,
+                               @AuthenticationPrincipal UserDetails userDetails) throws IOException {
 
         User author = userService.findByEmail(userDetails.getUsername());
-        threadService.createThread(id, title, content, author);
+        threadService.createThread(id, title, content, author, file);
 
         return "redirect:/courses/" + id;
     }

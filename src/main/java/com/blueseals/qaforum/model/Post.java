@@ -29,4 +29,14 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = true)
     private User user;
+
+    // -- file attachment fields --
+    private String fileName;
+    private String fileType;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] fileData;
+
+
 }

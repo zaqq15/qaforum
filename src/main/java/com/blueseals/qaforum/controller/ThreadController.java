@@ -1,6 +1,9 @@
 package com.blueseals.qaforum.controller;
 
+import com.blueseals.qaforum.model.Post;
 import com.blueseals.qaforum.model.User;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import com.blueseals.qaforum.model.ForumThread;
 import com.blueseals.qaforum.service.ThreadService;
@@ -10,6 +13,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Controller
 public class ThreadController {
@@ -42,10 +48,13 @@ public class ThreadController {
 
     // handle reply submission
     @PostMapping("/thread/{id}/reply")
-    public String postReply(@PathVariable Long id, @RequestParam String content, @AuthenticationPrincipal UserDetails userDetails) {
+    public String postReply(@PathVariable Long id,
+                            @RequestParam String content,
+                            @RequestParam(required = false) MultipartFile file,
+                            @AuthenticationPrincipal UserDetails userDetails) throws IOException {
 
         User author = userService.findByEmail(userDetails.getUsername());
-        threadService.addReply(id, content, author);
+        threadService.addReply(id, content, author, file);
 
         return "redirect:/thread/" + id;
     }
@@ -56,6 +65,20 @@ public class ThreadController {
         threadService.markAsAccepted(postId, user);
 
         return "redirect:/thread/" + id;
+    }
+
+    @GetMapping("/download/post/{postId}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Long postId) {
+        Post post = threadService.getPostById(postId);
+
+        if(post.getFileData() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .header("HttpHeaders.CONTENT_DISPOSITION, attachment; filename=\"" + post.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(post.getFileType() != null ? post.getFileType() : "application/octet-stream"))
+                .body(post.getFileData());
     }
 
 }
