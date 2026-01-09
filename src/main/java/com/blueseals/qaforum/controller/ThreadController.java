@@ -81,4 +81,31 @@ public class ThreadController {
                 .body(post.getFileData());
     }
 
+    @PostMapping("/thread/{id}/delete")
+    public String deleteThread(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByEmail(userDetails.getUsername());
+        Long courseId = threadService.getThreadById(id).getCourse().getId();
+
+        threadService.deleteThread(id, user);
+
+        return "redirect:/courses/" + courseId;
+    }
+
+    @PostMapping("/post/{postId}/delete")
+    public String deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByEmail(userDetails.getUsername());
+        Post post = threadService.getPostById(postId);
+        Long threadId = post.getThread().getId();
+
+        threadService.deletePost(postId, user);
+
+        // if the thread was deleted, redirect to the course page, else redirect to the thread page
+        try {
+            threadService.getThreadById(threadId);
+            return "redirect:/thread/" + threadId;
+        } catch (RuntimeException e) {
+            return "redirect:/courses/" + post.getThread().getCourse().getId();
+        }
+    }
+
 }

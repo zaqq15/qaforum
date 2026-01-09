@@ -173,6 +173,49 @@ public class ThreadService {
         postRepository.saveAll(thread.getPosts());
     }
 
+    // delete thread (hard delete)
+    @Transactional
+    public void deleteThread(Long threadId, User requester) {
+        ForumThread thread = threadRepository.findById(threadId)
+                .orElseThrow(() -> new RuntimeException("Thread not found"));
+
+        boolean isAuthor = thread.getPosts().get(0).getUser().getId().equals(requester.getId());
+        boolean isAdmin = requester.getRole() == Role.ADMIN;
+        boolean isTitular = thread.getCourse().getProfessor().getId().equals(requester.getId());
+
+        if(!isAuthor && !isAdmin && !isTitular) {
+            throw new RuntimeException("Unauthorized to delete thread.");
+        }
+
+        threadRepository.delete(thread);
+    }
+
+    // delete post (soft delete for replies, hard delete for questions)
+    @Transactional
+    public void deletePost(Long postId, User requester) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        boolean isAuthor = post.getUser().getId().equals(requester.getId());
+        boolean isAdmin = requester.getRole() == Role.ADMIN;
+        boolean isTitular = post.getThread().getCourse().getProfessor().getId().equals(requester.getId());
+
+        if(!isAuthor && !isAdmin && !isTitular) {
+            throw new RuntimeException("Unauthorized to delete post.");
+        }
+
+        if (post.getThread().getPosts().indexOf(post) == 0) {
+            threadRepository.delete(post.getThread());
+        } else {
+            post.setDeleted(true);
+            post.setContentText("[THIS REPLY HAS BEEN DELETED]");
+            post.setFileName(null);
+            post.setFileData(null);
+            postRepository.save(post);
+
+        }
+    }
+
 }
 
 

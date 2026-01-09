@@ -1,6 +1,7 @@
 package com.blueseals.qaforum.service;
 
 import com.blueseals.qaforum.model.Course;
+import com.blueseals.qaforum.model.Role;
 import com.blueseals.qaforum.model.User;
 import com.blueseals.qaforum.repository.CourseRepository;
 import com.blueseals.qaforum.repository.UserRepository;
@@ -33,6 +34,41 @@ public class CourseService {
         course.setProfessor(professor);
 
         return courseRepository.save(course);
+    }
+
+    public void deleteCourse(Long courseId, User requester) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        boolean isTitular = course.getProfessor().getEmail().equals(requester.getEmail());
+        boolean isAdmin = requester.getRole() == Role.ADMIN;
+
+        if (!isTitular && !isAdmin) {
+            throw new RuntimeException("Only the course titular or an admin can delete a course");
+        }
+
+        courseRepository.delete(course);
+    }
+
+    public Course updateCourse(Long courseId, String title, String description, String code, User requester) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        boolean isTitular = course.getProfessor().getEmail().equals(requester.getEmail());
+        boolean isAdmin = requester.getRole() == Role.ADMIN;
+
+        if (!isTitular && !isAdmin) {
+            throw new RuntimeException("Only the course titular or an admin can edit a course");
+        }
+
+        course.setTitle(title);
+        course.setDescription(description);
+        course.setCourseCode(code);
+        courseRepository.save(course);
+
+
+        return courseRepository.save(course);
+
     }
 
     public void enrollStudent(Long courseId, String studentEmail) {

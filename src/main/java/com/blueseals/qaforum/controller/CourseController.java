@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.transform.sax.SAXResult;
 import java.io.IOException;
 import java.util.List;
 
@@ -47,11 +48,15 @@ public class CourseController {
         User user = userService.findByEmail(userDetails.getUsername());
 
         boolean isEnrolled = course.getStudents().contains(user);
+        boolean isTitular = course.getProfessor().getEmail().equals(userDetails.getUsername());
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+        boolean canManage = isTitular || isAdmin;
 
         model.addAttribute("course", course);
         model.addAttribute("threads", threadService.getThreadsForCourse(id));
         model.addAttribute("currentUser", userDetails.getUsername());
         model.addAttribute("isEnrolled", isEnrolled);
+        model.addAttribute("canManage", canManage);
 
         return "course_view";
     }
@@ -110,4 +115,42 @@ public class CourseController {
         courseService.createCourse(title, courseCode, description, professor.getId());
         return "redirect:/dashboard";
     }
+
+    @PostMapping("{id}/delete")
+    public String deleteCourse(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByEmail(userDetails.getUsername());
+        courseService.deleteCourse(id, user);
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("{id}/edit")
+    public String editCourseForm(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        User user = userService.findByEmail(userDetails.getUsername());
+        boolean isTitular = course.getProfessor().getEmail().equals(userDetails.getUsername());
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+
+        if (!isTitular && !isAdmin) {
+            return "redirect:/courses/" + id; // unauthorized
+        }
+        model.addAttribute("course", course);
+        return "edit_course";
+
+    }
+
+    @PostMapping("{id}/update")
+    public String updateCourse(@PathVariable Long id,
+                               @RequestParam String title,
+                               @RequestParam String courseCode,
+                               @RequestParam String description,
+                               @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByEmail(userDetails.getUsername());
+
+        courseService.updateCourse(id, title, description, courseCode, user);
+        return "redirect:/courses/" + id;
+    }
+
+
 }

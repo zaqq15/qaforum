@@ -34,6 +34,10 @@ public class Post {
     private String fileName;
     private String fileType;
 
+    // soft delete flag
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] fileData;
