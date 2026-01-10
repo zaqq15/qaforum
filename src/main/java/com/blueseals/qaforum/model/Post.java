@@ -2,6 +2,8 @@ package com.blueseals.qaforum.model;
 import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -42,5 +44,12 @@ public class Post {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] fileData;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Vote> votes = new HashSet<>();
 
+    public int getScore() {
+        return votes.stream()
+                .mapToInt(v -> v.getType() == Vote.VoteType.UP ? 1 : -1)
+                .sum();
+    }
 }

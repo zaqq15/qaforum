@@ -2,6 +2,8 @@ package com.blueseals.qaforum.controller;
 
 import com.blueseals.qaforum.model.Post;
 import com.blueseals.qaforum.model.User;
+import com.blueseals.qaforum.model.Vote;
+import com.blueseals.qaforum.service.VoteService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,8 @@ public class ThreadController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private VoteService voteService;
 
     // view a specific thread and its posts
     @GetMapping("/thread/{id}")
@@ -106,6 +110,20 @@ public class ThreadController {
         } catch (RuntimeException e) {
             return "redirect:/courses/" + post.getThread().getCourse().getId();
         }
+    }
+
+    @PostMapping("/post/{postId}/vote")
+    public String vote(@PathVariable Long postId,
+                       @RequestParam String type,
+                       @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.findByEmail(userDetails.getUsername());
+        Vote.VoteType voteType = type.equalsIgnoreCase("UP") ? Vote.VoteType.UP : Vote.VoteType.DOWN;
+
+        voteService.castVote(postId, user, voteType);
+
+        Post post = threadService.getPostById(postId);
+        return "redirect:/thread/" + post.getThread().getId();
     }
 
 }
