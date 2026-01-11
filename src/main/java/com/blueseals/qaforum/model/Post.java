@@ -1,4 +1,5 @@
 package com.blueseals.qaforum.model;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class Post {
 
     @Lob
     @Column(columnDefinition = "TEXT", nullable = false)
+    @NotBlank(message = "Post content is required")
     private String contentText;
 
     @Column(nullable = false)

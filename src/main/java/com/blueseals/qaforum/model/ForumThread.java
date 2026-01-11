@@ -1,5 +1,7 @@
 package com.blueseals.qaforum.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -17,9 +19,12 @@ public class ForumThread {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank(message = "Thread title is required")
+    @Size(min = 3, max = 100, message = "Thread title must be between 3 and 100 characters")
     private String title;
 
     @Column(nullable = true)
+    @NotBlank(message = "Thread description is required")
     private String description;
 
     @Column(nullable = false)
