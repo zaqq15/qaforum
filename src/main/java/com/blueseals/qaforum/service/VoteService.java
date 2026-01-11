@@ -3,6 +3,7 @@ package com.blueseals.qaforum.service;
 import com.blueseals.qaforum.model.Vote;
 import com.blueseals.qaforum.model.User;
 import com.blueseals.qaforum.model.Post;
+import com.blueseals.qaforum.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +20,20 @@ public class VoteService {
 
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public void castVote(Long postId, User user, Vote.VoteType type) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // users can't vote on their own posts to farm points
+        User author = post.getUser();
+        if (author != null && author.getId().equals(user.getId())) {
+            return;
+        }
+
         Optional<Vote> existingVote = voteRepository.findByUserAndPost(user, post);
 
         if (existingVote.isPresent()) {
@@ -31,10 +41,12 @@ public class VoteService {
             if (vote.getType() == type) {
                 // if a user already voted for the same type, remove the vote
                 voteRepository.delete(vote);
+                updateReputation(author, type == Vote.VoteType.UP ? -10 : 10);
             } else {
                 // change vote type
                 vote.setType(type);
                 voteRepository.save(vote);
+                updateReputation(author, type == Vote.VoteType.UP ? 10 : -10);
             }
         } else {
             // new vote
@@ -43,6 +55,14 @@ public class VoteService {
             vote.setPost(post);
             vote.setType(type);
             voteRepository.save(vote);
+            updateReputation(author, type == Vote.VoteType.UP ? 10 : -10);
         }
+    }
+
+    private void updateReputation(User user, int change) {
+        if (user == null) return;
+        int newRep = user.getReputation() + change;
+        user.setReputation(Math.max(0, newRep));
+        userRepository.save(user);
     }
 }

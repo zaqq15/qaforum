@@ -11,7 +11,10 @@
         <h1>Welcome, <span th:text="${username}">User</span>!</h1>
 
         <div class="d-flex gap-2">
-            <!-- NEW: Profile Link -->
+            <!-- NEW: Rewards Shop Link -->
+            <a href="/shop" class="btn btn-warning">🎁 Rewards Shop</a>
+
+            <!-- Existing Profile Link -->
             <a href="/profile" class="btn btn-outline-primary">My Profile</a>
 
             <form th:action="@{/logout}" method="post">

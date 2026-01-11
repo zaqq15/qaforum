@@ -30,6 +30,16 @@
             font-weight: bold;
             margin: 5px 0;
         }
+
+        /* Shop Item Styles */
+        .username-blue {
+            color: #0d6efd !important;
+            font-weight: bold;
+        }
+        .badge-icon {
+            font-size: 1.2em;
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body class="bg-light p-4">
@@ -78,13 +88,24 @@
                         <strong class="text-muted" th:if="${post.deleted}">[Deleted]</strong>
 
                         <div th:unless="${post.deleted}" class="d-inline">
+                            <!-- Anonymous Logic -->
                             <strong class="text-secondary"
                                     th:if="${post.user == null or (post.user.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and post.user.email != #authentication.name)}">
                                 Anonymous Student
                             </strong>
+
+                            <!-- Reveal Logic with Shop Items -->
                             <strong class="text-success"
                                     th:if="${post.user != null and (post.user.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or post.user.email == #authentication.name)}">
-                                <span th:text="${post.user.fullName}">Name</span>
+
+                                <!-- Apply 'Blue Name' effect if active -->
+                                <span th:classappend="${post.user.activeBadge == 'color_blue'} ? 'username-blue' : ''"
+                                      th:text="${post.user.fullName}">Name</span>
+
+                                <!-- Apply Badges -->
+                                <span th:if="${post.user.activeBadge == 'badge_gold'}" class="badge-icon" title="Gold Member">🥇</span>
+                                <span th:if="${post.user.activeBadge == 'badge_wizard'}" class="badge-icon" title="Code Wizard">🧙‍♂️</span>
+
                                 <span th:if="${post.user.role.name() == 'STUDENT'}" class="text-muted small ms-1">(Student)</span>
                             </strong>
                         </div>

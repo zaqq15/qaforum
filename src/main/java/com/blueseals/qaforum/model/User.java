@@ -34,6 +34,11 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    private int reputation = 0;
+
+    private String activeBadge;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
