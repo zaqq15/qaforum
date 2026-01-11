@@ -92,6 +92,26 @@ public class ThreadService {
                 .collect(Collectors.toList());
     }
 
+    // get threads sorted by user
+    public List<ForumThread> getThreadsByUser(User author) {
+        List<Post> userPosts = postRepository.findAll();
+        return userPosts.stream()
+                .filter(p -> p.getUser().getId().equals(author.getId()))
+                .filter(p -> p.getThread().getPosts().indexOf(p) == 0)
+                .map(Post::getThread)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    // get posts (replies) for user
+    public List<Post> getPostsByUser(User author) {
+        List<Post> userPosts = postRepository.findAll();
+        return userPosts.stream()
+                .filter(p -> p.getUser().getId().equals(author.getId()))
+                .filter(p -> p.getThread().getPosts().indexOf(p) > 0)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ForumThread createThread(Long courseId, String title, String content, User author, MultipartFile file) throws IOException {
         Course course = courseRepository.findById(courseId)

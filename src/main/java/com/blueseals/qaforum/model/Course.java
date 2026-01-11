@@ -1,5 +1,8 @@
 package com.blueseals.qaforum.model;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.aspectj.weaver.patterns.TypePatternQuestions;
 
@@ -17,12 +20,16 @@ public class Course {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank(message = "Course title is required")
     private String title;
 
     @Column(nullable = false, unique = true)
+    @NotBlank(message = "Course code is required")
+    @Size(min = 3, max = 10, message = "Course code must be between 3 and 10 characters")
     private String courseCode;
 
     @Column(columnDefinition = "TEXT")
+    @NotBlank(message = "Course description is required")
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
