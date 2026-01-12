@@ -4,134 +4,521 @@
     <title>User Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-600);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            gap: 12px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .profile-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.5px;
+        }
+
+        /* Custom Tabs */
+        .custom-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 20px 32px 0;
+            background: white;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: var(--gray-600);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+
+        .tab-content-custom {
+            padding: 32px;
+        }
+
+        .tab-pane-custom {
+            display: none;
+        }
+
+        .tab-pane-custom.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Info Section */
+        .info-row {
+            display: flex;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: var(--gray-700);
+            width: 200px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            flex: 1;
+            color: var(--gray-900);
+            font-size: 14px;
+        }
+
+        .role-badge {
+            background: var(--gray-200);
+            color: var(--gray-700);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Password Change Form */
+        .section-divider {
+            margin: 32px 0;
+            border: none;
+            border-top: 2px solid var(--gray-200);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #047857;
+            border-left: 4px solid #10b981;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 20px;
+        }
+
+        .form-label-inline {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray-700);
+            min-width: 160px;
+        }
+
+        .form-control {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+            background: var(--gray-50);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+        }
+
+        .form-actions {
+            text-align: right;
+            margin-top: 24px;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: white;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-update:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* List Items */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-600);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .list-item {
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .list-item:hover {
+            border-color: var(--primary);
+            background: white;
+            transform: translateX(4px);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .item-title {
+            font-weight: 700;
+            color: var(--gray-900);
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .item-date {
+            color: var(--gray-600);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .item-meta {
+            color: var(--gray-600);
+            font-size: 13px;
+        }
+
+        .accepted-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .profile-header {
+                padding: 24px 20px;
+            }
+
+            .custom-tabs {
+                padding: 20px 20px 0;
+                overflow-x: auto;
+            }
+
+            .tab-content-custom {
+                padding: 24px 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-label-inline {
+                min-width: auto;
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .info-label {
+                width: auto;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light p-4">
+<body>
 
-<div class="container" style="max-width: 800px;">
+<div class="container">
+    <a href="/dashboard" class="back-link">
+        <span>←</span>
+        <span>Back to Dashboard</span>
+    </a>
 
-    <div class="mb-4">
-        <a href="/dashboard" class="text-decoration-none">&larr; Back to Dashboard</a>
-    </div>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">My Profile</h4>
+    <div class="profile-card">
+        <div class="profile-header">
+            <h1>My Profile</h1>
         </div>
-        <div class="card-body">
 
-            <!-- Navigation Tabs -->
-            <ul class="nav nav-tabs mb-3" id="profileTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Account Info</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="threads-tab" data-bs-toggle="tab" data-bs-target="#threads" type="button" role="tab">My Threads</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts" type="button" role="tab">My Comments</button>
-                </li>
-            </ul>
+        <!-- Custom Tabs -->
+        <div class="custom-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'info')">
+                📋 Account Info
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'threads')">
+                💬 My Threads
+            </button>
+            <button class="tab-btn" onclick="switchTab(event, 'posts')">
+                💭 My Comments
+            </button>
+        </div>
 
-            <!-- Tab Content -->
-            <div class="tab-content" id="profileTabsContent">
-
-                <!-- 1. Account Info & Password -->
-                <div class="tab-pane fade show active" id="info" role="tabpanel">
-                    <div class="row mb-4 mt-3">
-                        <label class="col-sm-3 col-form-label fw-bold">Full Name:</label>
-                        <div class="col-sm-9">
-                            <input type="text" readonly class="form-control-plaintext" th:value="${user.fullName}">
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <label class="col-sm-3 col-form-label fw-bold">Email:</label>
-                        <div class="col-sm-9">
-                            <input type="text" readonly class="form-control-plaintext" th:value="${user.email}">
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <label class="col-sm-3 col-form-label fw-bold">Role:</label>
-                        <div class="col-sm-9">
-                            <span class="badge bg-secondary" th:text="${user.role}">STUDENT</span>
-                        </div>
-                    </div>
-
-                    <hr>
-                    <h5 class="mb-3">Change Password</h5>
-                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-
-                    <form th:action="@{/profile/change-password}" method="post">
-                        <div class="mb-2 row">
-                            <label class="col-sm-4 col-form-label">Current Password</label>
-                            <div class="col-sm-8">
-                                <input type="password" name="currentPassword" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="mb-2 row">
-                            <label class="col-sm-4 col-form-label">New Password</label>
-                            <div class="col-sm-8">
-                                <input type="password" name="newPassword" class="form-control" required minlength="6">
-                            </div>
-                        </div>
-                        <div class="mb-3 row">
-                            <label class="col-sm-4 col-form-label">Confirm New</label>
-                            <div class="col-sm-8">
-                                <input type="password" name="confirmPassword" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-warning">Update Password</button>
-                        </div>
-                    </form>
+        <div class="tab-content-custom">
+            <!-- Account Info Tab -->
+            <div id="info" class="tab-pane-custom active">
+                <div class="info-row">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value" th:text="${user.fullName}">John Doe</div>
                 </div>
-
-                <!-- 2. My Threads -->
-                <div class="tab-pane fade" id="threads" role="tabpanel">
-                    <div class="mt-3">
-                        <div th:if="${myThreads.empty}" class="text-muted text-center py-4">
-                            You haven't created any threads yet.
-                        </div>
-                        <div class="list-group" th:unless="${myThreads.empty}">
-                            <a th:href="@{/thread/{id}(id=${thread.id})}" class="list-group-item list-group-item-action" th:each="thread : ${myThreads}">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1 fw-bold" th:text="${thread.title}">Thread Title</h6>
-                                    <small class="text-muted" th:text="${#temporals.format(thread.createdAt, 'dd MMM yyyy')}">Date</small>
-                                </div>
-                                <small class="text-muted">
-                                    Course: <span th:text="${thread.course.courseCode}">CS101</span>
-                                </small>
-                            </a>
-                        </div>
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" th:text="${user.email}">john@example.com</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Role</div>
+                    <div class="info-value">
+                        <span class="role-badge" th:text="${user.role}">STUDENT</span>
                     </div>
                 </div>
 
-                <!-- 3. My Comments (Posts) -->
-                <div class="tab-pane fade" id="posts" role="tabpanel">
-                    <div class="mt-3">
-                        <div th:if="${myPosts.empty}" class="text-muted text-center py-4">
-                            You haven't posted any comments yet.
-                        </div>
-                        <div class="list-group" th:unless="${myPosts.empty}">
-                            <a th:href="@{/thread/{id}(id=${post.thread.id})}" class="list-group-item list-group-item-action" th:each="post : ${myPosts}">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1 text-truncate" style="max-width: 500px;" th:text="${post.contentText}">Content...</h6>
-                                    <small class="text-muted" th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">Date</small>
-                                </div>
-                                <small class="text-muted">
-                                    in Thread: <span th:text="${post.thread.title}">Thread Title</span>
-                                    <span th:if="${post.accepted}" class="badge bg-success ms-2">Accepted</span>
-                                </small>
-                            </a>
-                        </div>
+                <hr class="section-divider">
+
+                <h2 class="section-title">Change Password</h2>
+
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                <form th:action="@{/profile/change-password}" method="post">
+                    <div class="form-row">
+                        <label class="form-label-inline">Current Password</label>
+                        <input type="password" name="currentPassword" class="form-control" required>
                     </div>
+                    <div class="form-row">
+                        <label class="form-label-inline">New Password</label>
+                        <input type="password" name="newPassword" class="form-control" required minlength="6">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label-inline">Confirm New Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-update">Update Password</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- My Threads Tab -->
+            <div id="threads" class="tab-pane-custom">
+                <div th:if="${myThreads == null or myThreads.empty}" class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <p>You haven't created any threads yet.</p>
                 </div>
 
+                <div class="item-list" th:if="${myThreads != null and !myThreads.empty}">
+                    <a th:href="@{/thread/{id}(id=${thread.id})}" class="list-item" th:each="thread : ${myThreads}">
+                        <div class="item-header">
+                            <h3 class="item-title" th:text="${thread.title}">Thread Title</h3>
+                            <span class="item-date" th:text="${#temporals.format(thread.createdAt, 'dd MMM yyyy')}">Date</span>
+                        </div>
+                        <div class="item-meta">
+                            📖 Course: <span th:text="${thread.course != null ? thread.course.courseCode : 'N/A'}">CS101</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- My Comments Tab -->
+            <div id="posts" class="tab-pane-custom">
+                <div th:if="${myPosts == null or myPosts.empty}" class="empty-state">
+                    <div class="empty-icon">💭</div>
+                    <p>You haven't posted any comments yet.</p>
+                </div>
+
+                <div class="item-list" th:if="${myPosts != null and !myPosts.empty}">
+                    <a th:href="@{/thread/{id}(id=${post.thread != null ? post.thread.id : '#'})}" class="list-item" th:each="post : ${myPosts}">
+                        <div class="item-header">
+                            <h3 class="item-title" th:text="${post.contentText != null ? #strings.abbreviate(post.contentText, 80) : 'No content'}">Content preview...</h3>
+                            <span class="item-date" th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">Date</span>
+                        </div>
+                        <div class="item-meta">
+                            💬 in Thread: <span th:text="${post.thread != null ? post.thread.title : 'Unknown'}">Thread Title</span>
+                            <span th:if="${post.accepted}" class="accepted-badge">✓ Accepted</span>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
+
+<script>
+    function switchTab(event, tabId) {
+        // Hide all tab panes
+        document.querySelectorAll('.tab-pane-custom').forEach(pane => {
+            pane.classList.remove('active');
+        });
+
+        // Remove active class from all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab pane
+        document.getElementById(tabId).classList.add('active');
+
+        // Add active class to clicked button
+        event.currentTarget.classList.add('active');
+    }
+</script>
 
 </body>
 </html>

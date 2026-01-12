@@ -1,121 +1,581 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard - Askademic</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #dbeafe;
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 20px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .welcome-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-text p {
+            font-size: 13px;
+            color: var(--gray-600);
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-warning-custom {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+        }
+
+        .btn-warning-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+
+        .btn-outline-custom {
+            background: white;
+            color: var(--gray-700);
+            border: 2px solid var(--gray-200);
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+
+        .btn-danger-outline {
+            background: white;
+            color: var(--danger);
+            border: 2px solid #fee2e2;
+        }
+
+        .btn-danger-outline:hover {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .icon-primary {
+            background: var(--primary-light);
+        }
+
+        .icon-dark {
+            background: #e2e8f0;
+        }
+
+        .section-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        /* Course Grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .course-card {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .course-card-link:hover .course-card {
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .course-card-link:hover .course-card::before {
+            transform: scaleY(1);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .course-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 8px 0;
+            letter-spacing: -0.2px;
+        }
+
+        .course-card-link:hover .course-title {
+            color: var(--primary);
+        }
+
+        .course-code {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .course-description {
+            color: var(--gray-600);
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .course-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-600);
+            font-size: 13px;
+        }
+
+        .instructor-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Available Courses List */
+        .course-list-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+            transition: all 0.2s ease;
+        }
+
+        .course-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .course-list-item:hover {
+            background: var(--gray-50);
+        }
+
+        .course-list-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .course-list-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 6px 0;
+        }
+
+        .course-list-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+
+        .meta-divider {
+            color: var(--gray-300);
+        }
+
+        .btn-enroll {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-enroll:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            color: var(--gray-600);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+            background: var(--gray-50);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .course-list-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn-enroll {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="p-4 bg-light">
+<body>
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Welcome, <span th:text="${username}">User</span>!</h1>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="navbar-content">
+        <div class="brand-section">
+            <div class="brand-icon">📚</div>
+            <div class="welcome-text">
+                <h1>Welcome, <span th:text="${username}">User</span>!</h1>
+                <p>Explore your courses and discussions</p>
+            </div>
+        </div>
 
-        <div class="d-flex gap-2">
-            <!-- NEW: Rewards Shop Link -->
-            <a href="/shop" class="btn btn-warning">🎁 Rewards Shop</a>
-
-            <!-- Existing Profile Link -->
-            <a href="/profile" class="btn btn-outline-primary">My Profile</a>
-
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-outline-danger">Logout</button>
+        <div class="nav-actions">
+            <a href="/shop" class="btn btn-warning-custom">
+                <span>🎁</span>
+                Rewards Shop
+            </a>
+            <a href="/profile" class="btn btn-outline-custom">My Profile</a>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn btn-danger-outline">Logout</button>
             </form>
         </div>
     </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
 
     <!-- Create Course Section (Professors/Admins Only) -->
-    <div class="card shadow-sm border-0 mb-5" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
-        <div class="card-header bg-dark text-white pt-3 px-4">
-            <h5 class="mb-0 fw-bold">Course Management</h5>
+    <div class="section-card" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
+        <div class="section-header">
+            <div class="section-icon icon-dark">⚙️</div>
+            <h2>Course Management</h2>
         </div>
-        <div class="card-body">
-            <h5 class="card-title">Create a New Course</h5>
-            <form th:action="@{/courses/create}" method="post" class="mt-3">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="title" class="form-label">Course Title</label>
-                        <input type="text" class="form-control" name="title" placeholder="e.g. Intro to Computer Science" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="courseCode" class="form-label">Course Code</label>
-                        <input type="text" class="form-control" name="courseCode" placeholder="e.g. CS-101" required>
-                    </div>
-                    <div class="col-12">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" name="description" rows="2" placeholder="Brief description of the course..." required></textarea>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success">Create Course</button>
-                    </div>
+
+        <form th:action="@{/courses/create}" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Course Title</label>
+                    <input type="text" class="form-control" name="title" placeholder="e.g., Introduction to Computer Science" required>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- My Courses Section (For Students AND Professors) -->
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="card-header bg-primary text-white pt-3 px-4">
-            <h5 class="mb-0 fw-bold">My Courses</h5>
-        </div>
-        <div class="card-body">
-            <div th:if="${myCourses.empty}" class="text-muted text-center py-4">
-                <span sec:authorize="hasRole('STUDENT')">You are not enrolled in any courses yet.</span>
-                <span sec:authorize="hasRole('PROFESSOR')">You are not teaching any courses yet.</span>
-            </div>
-
-            <div class="row row-cols-1 row-cols-md-2 g-3" th:unless="${myCourses.empty}">
-                <div class="col" th:each="course : ${myCourses}">
-                    <div class="card h-100 border-start border-4 border-start-primary shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="card-title mb-0">
-                                    <a th:href="@{/courses/{id}(id=${course.id})}" class="text-decoration-none text-dark stretched-link">
-                                        <span th:text="${course.title}">Course Name</span>
-                                    </a>
-                                </h5>
-                                <span class="badge bg-light text-secondary border" th:text="${course.courseCode}">CODE</span>
-                            </div>
-                            <p class="card-text text-muted small text-truncate" th:text="${course.description}">Desc...</p>
-                            <small class="text-muted">
-                                Prof: <span th:text="${course.professor != null ? course.professor.fullName : 'None'}">Name</span>
-                            </small>
-                            <!-- Manage Button for Professor -->
-                            <div class="mt-2" sec:authorize="hasRole('PROFESSOR')">
-                                <span class="badge bg-success">Instructor</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Course Code</label>
+                    <input type="text" class="form-control" name="courseCode" placeholder="e.g., CS-101" required>
                 </div>
             </div>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" placeholder="Brief description of the course..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary-custom">
+                <span>➕</span>
+                Create Course
+            </button>
+        </form>
     </div>
 
-    <!-- Available Courses Section (For Students to Enroll) -->
-    <div class="card shadow-sm border-0" sec:authorize="hasRole('STUDENT')">
-        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
-            <h5 class="mb-0 text-secondary fw-bold">Available Courses to Join</h5>
+    <!-- My Courses Section -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon icon-primary">📖</div>
+            <h2>My Courses</h2>
         </div>
-        <div class="card-body">
-            <div th:if="${availableCourses.empty}" class="text-muted text-center py-4">
-                No other courses available.
-            </div>
 
-            <ul class="list-group list-group-flush" th:unless="${availableCourses.empty}">
-                <li class="list-group-item border-0 py-3" th:each="course : ${availableCourses}">
-                    <div class="d-flex justify-content-between align-items-center">
+        <div th:if="${myCourses == null or myCourses.empty}" class="empty-state">
+            <div class="empty-icon">📚</div>
+            <p sec:authorize="hasRole('STUDENT')">You are not enrolled in any courses yet. Browse available courses below!</p>
+            <p sec:authorize="hasRole('PROFESSOR')">You are not teaching any courses yet. Create one to get started!</p>
+        </div>
+
+        <div class="course-grid" th:if="${myCourses != null and !myCourses.empty}">
+            <a th:href="@{/courses/{id}(id=${course.id})}" class="course-card-link" th:each="course : ${myCourses}">
+                <div class="course-card">
+                    <div class="course-header">
                         <div>
-                            <h6 class="mb-1 fw-bold" th:text="${course.title}">Course Name</h6>
-                            <small class="text-muted" th:text="${course.courseCode}">CODE</small>
-                            <span class="text-muted mx-2">|</span>
-                            <small class="text-muted" th:text="${course.professor != null ? course.professor.fullName : 'None'}">Prof</small>
+                            <h3 class="course-title">
+                                <span th:text="${course.title}">Course Name</span>
+                            </h3>
                         </div>
-
-                        <form th:action="@{/courses/{id}/enroll(id=${course.id})}" method="post">
-                            <button type="submit" class="btn btn-sm btn-outline-primary">Enroll</button>
-                        </form>
+                        <span class="course-code" th:text="${course.courseCode}">CODE</span>
                     </div>
-                </li>
-            </ul>
+                    <p class="course-description" th:text="${course.description}">Course description goes here...</p>
+                    <div class="course-meta">
+                        <span>👨‍🏫 <span th:text="${course.professor != null ? course.professor.fullName : 'None'}">Instructor</span></span>
+                        <span class="instructor-badge" sec:authorize="hasRole('PROFESSOR')">Instructor</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Available Courses Section (For Students) -->
+    <div class="section-card" sec:authorize="hasRole('STUDENT')">
+        <div class="section-header">
+            <div class="section-icon icon-primary">🔍</div>
+            <h2>Available Courses</h2>
+        </div>
+
+        <div th:if="${availableCourses == null or availableCourses.empty}" class="empty-state">
+            <div class="empty-icon">✓</div>
+            <p>No other courses available at this time.</p>
+        </div>
+
+        <div th:if="${availableCourses != null and !availableCourses.empty}">
+            <div class="course-list-item" th:each="course : ${availableCourses}">
+                <div class="course-list-content">
+                    <div class="course-list-info">
+                        <h3 th:text="${course.title}">Course Name</h3>
+                        <div class="course-list-meta">
+                            <span th:text="${course.courseCode}">CODE</span>
+                            <span class="meta-divider">•</span>
+                            <span>👨‍🏫 <span th:text="${course.professor != null ? course.professor.fullName : 'None'}">Professor</span></span>
+                        </div>
+                    </div>
+                    <form th:action="@{/courses/{id}/enroll(id=${course.id})}" method="post">
+                        <button type="submit" class="btn-enroll">Enroll Now</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
