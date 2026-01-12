@@ -37,7 +37,7 @@ public class ShopService {
         }
         user.setReputation(user.getReputation() - item.getPrice());
 
-        user.setActiveBadge(item.getName());
+        user.setActiveBadge(item.getId());
 
         userRepository.save(user);
     }
