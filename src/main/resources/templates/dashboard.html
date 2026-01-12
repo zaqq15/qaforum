@@ -56,6 +56,7 @@
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 24px;
+            gap: 48px;
         }
 
         .brand-section {
@@ -173,28 +174,9 @@
         .section-header {
             display: flex;
             align-items: center;
-            gap: 12px;
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 2px solid var(--gray-100);
-        }
-
-        .section-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .icon-primary {
-            background: var(--primary-light);
-        }
-
-        .icon-dark {
-            background: #e2e8f0;
         }
 
         .section-header h2 {
@@ -470,10 +452,7 @@
         </div>
 
         <div class="nav-actions">
-            <a href="/shop" class="btn btn-warning-custom">
-                <span>🎁</span>
-                Rewards Shop
-            </a>
+            <a href="/shop" class="btn btn-warning-custom">🎁 Rewards Shop</a>
             <a href="/profile" class="btn btn-outline-custom">My Profile</a>
             <form th:action="@{/logout}" method="post" style="margin: 0;">
                 <button type="submit" class="btn btn-danger-outline">Logout</button>
@@ -488,7 +467,6 @@
     <!-- Create Course Section (Professors/Admins Only) -->
     <div class="section-card" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
         <div class="section-header">
-            <div class="section-icon icon-dark">⚙️</div>
             <h2>Course Management</h2>
         </div>
 
@@ -508,7 +486,6 @@
                 <textarea class="form-control" name="description" placeholder="Brief description of the course..." required></textarea>
             </div>
             <button type="submit" class="btn btn-primary-custom">
-                <span>➕</span>
                 Create Course
             </button>
         </form>
@@ -517,7 +494,6 @@
     <!-- My Courses Section -->
     <div class="section-card">
         <div class="section-header">
-            <div class="section-icon icon-primary">📖</div>
             <h2>My Courses</h2>
         </div>
 
@@ -551,12 +527,11 @@
     <!-- Available Courses Section (For Students) -->
     <div class="section-card" sec:authorize="hasRole('STUDENT')">
         <div class="section-header">
-            <div class="section-icon icon-primary">🔍</div>
             <h2>Available Courses</h2>
         </div>
 
         <div th:if="${availableCourses == null or availableCourses.empty}" class="empty-state">
-            <div class="empty-icon">✓</div>
+            <div class="empty-icon"></div>
             <p>No other courses available at this time.</p>
         </div>
 

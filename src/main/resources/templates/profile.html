@@ -402,13 +402,13 @@
         <!-- Custom Tabs -->
         <div class="custom-tabs">
             <button class="tab-btn active" onclick="switchTab(event, 'info')">
-                📋 Account Info
+                Account Info
             </button>
             <button class="tab-btn" onclick="switchTab(event, 'threads')">
-                💬 My Threads
+                My Threads
             </button>
             <button class="tab-btn" onclick="switchTab(event, 'posts')">
-                💭 My Comments
+                My Comments
             </button>
         </div>
 
@@ -421,7 +421,7 @@
                 </div>
                 <div class="info-row">
                     <div class="info-label">Email</div>
-                    <div class="info-value" th:text="${user.email}">john@example.com</div>
+                    <div class="info-value" th:text="${user.email}"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dbb1b4b3b59bbea3bab6abb7bef5b8b4b6">[email&#160;protected]</a></div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">Role</div>
@@ -470,7 +470,7 @@
                             <span class="item-date" th:text="${#temporals.format(thread.createdAt, 'dd MMM yyyy')}">Date</span>
                         </div>
                         <div class="item-meta">
-                            📖 Course: <span th:text="${thread.course != null ? thread.course.courseCode : 'N/A'}">CS101</span>
+                            Course: <span th:text="${thread.course != null ? thread.course.courseCode : 'N/A'}">CS101</span>
                         </div>
                     </a>
                 </div>
@@ -490,7 +490,7 @@
                             <span class="item-date" th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}">Date</span>
                         </div>
                         <div class="item-meta">
-                            💬 in Thread: <span th:text="${post.thread != null ? post.thread.title : 'Unknown'}">Thread Title</span>
+                            in Thread: <span th:text="${post.thread != null ? post.thread.title : 'Unknown'}">Thread Title</span>
                             <span th:if="${post.accepted}" class="accepted-badge">✓ Accepted</span>
                         </div>
                     </a>

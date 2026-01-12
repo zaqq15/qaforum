@@ -426,10 +426,7 @@
         <h1 th:text="${thread.title}">Thread Title</h1>
     </div>
 
-    <h2 class="section-title">
-        <span>💬</span>
-        Discussion
-    </h2>
+    <h2 class="section-title">Discussion</h2>
 
     <!-- Posts -->
     <div th:each="post, iterStat : ${thread.posts}"
@@ -457,7 +454,7 @@
                 <div class="post-header">
                     <div class="author-info">
                         <span th:if="${post.accepted and !post.deleted}" class="solution-badge">
-                            ✓ Solution
+                            ✓ Accepted Answer
                         </span>
 
                         <div th:if="${post.deleted}">
@@ -494,8 +491,7 @@
 
                 <div th:if="${post.fileName != null and !post.deleted}">
                     <a th:href="@{/download/post/{id}(id=${post.id})}" target="_blank" class="attachment">
-                        <span class="attachment-icon">📎</span>
-                        <span th:text="${post.fileName}">file.txt</span>
+                        📎 <span th:text="${post.fileName}">file.txt</span>
                     </a>
                 </div>
 
@@ -504,7 +500,7 @@
                     <div th:if="${canMark and !post.accepted and iterStat.index > 0}">
                         <form th:action="@{/thread/{id}/mark/{postId}(id=${thread.id}, postId=${post.id})}" method="post">
                             <button type="submit" class="btn btn-mark-solution">
-                                ✓ Mark as Solution
+                                Mark as Solution
                             </button>
                         </form>
                     </div>
@@ -512,7 +508,7 @@
                     <div th:if="${(post.user != null and post.user.email == #authentication.name) or #authorization.expression('hasRole(''ADMIN'')') or canMark}">
                         <form th:action="@{/post/{id}/delete(id=${post.id})}" method="post"
                               onsubmit="return confirm('Delete this post?');">
-                            <button type="submit" class="btn btn-delete" title="Delete">🗑️</button>
+                            <button type="submit" class="btn btn-delete" title="Delete">Delete</button>
                         </form>
                     </div>
                 </div>

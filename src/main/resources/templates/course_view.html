@@ -157,7 +157,7 @@
 
         .search-input {
             flex: 1;
-            padding: 14px 20px 14px 48px;
+            padding: 14px 20px;
             border: 2px solid var(--gray-200);
             border-radius: 12px;
             font-size: 15px;
@@ -444,13 +444,11 @@
 
             <div class="action-buttons" th:if="${canManage}">
                 <a th:href="@{/courses/{id}/edit(id=${course.id})}" class="btn btn-warning">
-                    <span>✏️</span>
                     Edit
                 </a>
                 <form th:action="@{/courses/{id}/delete(id=${course.id})}" method="post"
                       onsubmit="return confirm('Are you sure? This will delete the course and ALL threads!');">
                     <button type="submit" class="btn btn-danger">
-                        <span>🗑️</span>
                         Delete
                     </button>
                 </form>
@@ -461,7 +459,6 @@
     <!-- Search Bar -->
     <div class="search-section">
         <form th:action="@{/courses/{id}/search(id=${course.id})}" method="get" class="search-form">
-            <span class="search-icon">🔍</span>
             <input type="text" name="query" class="search-input" placeholder="Search threads in this course..." required>
             <button type="submit" class="btn-search">Search</button>
         </form>
@@ -470,10 +467,7 @@
     <!-- New Question Form -->
     <div class="question-form-card">
         <div class="card-header-custom">
-            <h3>
-                <span>💬</span>
-                Ask a Question
-            </h3>
+            <h3>💬 Ask a Question</h3>
         </div>
         <div class="card-body-custom">
             <form th:action="@{/courses/{id}/thread(id=${course.id})}" method="post" enctype="multipart/form-data">
@@ -491,7 +485,6 @@
                 </div>
                 <div class="form-footer">
                     <div class="anonymous-notice">
-                        <span>🔒</span>
                         <span>Your name will be hidden from other students (Anonymous)</span>
                     </div>
                     <button type="submit" class="btn-submit">Post Question</button>
@@ -501,10 +494,7 @@
     </div>
 
     <!-- List of Threads -->
-    <h2 class="section-title">
-        <span>📋</span>
-        Recent Discussions
-    </h2>
+    <h2 class="section-title">Recent Discussions</h2>
 
     <div th:if="${threads == null or threads.empty}" class="alert-info">
         💡 No questions yet. Be the first to ask!
@@ -520,12 +510,10 @@
             </h3>
             <div class="thread-meta">
                 <span class="meta-item">
-                    <span>📅</span>
                     <span th:text="${#temporals.format(thread.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
                 </span>
                 <span class="meta-item">
-                    <span>💬</span>
-                    <span th:text="${#lists.size(thread.posts) > 0 ? #lists.size(thread.posts) - 1 : 0} + ' replies'">0 replies</span>
+                    💬 <span th:text="${#lists.size(thread.posts) > 0 ? #lists.size(thread.posts) - 1 : 0} + ' replies'">0 replies</span>
                 </span>
             </div>
         </div>
