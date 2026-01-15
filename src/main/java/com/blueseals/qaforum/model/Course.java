@@ -25,7 +25,7 @@ public class Course {
 
     @Column(nullable = false, unique = true)
     @NotBlank(message = "Course code is required")
-    @Size(min = 3, max = 10, message = "Course code must be between 3 and 10 characters")
+    @Size(min = 1, max = 10, message = "Course code must be between 1 and 5 characters")
     private String courseCode;
 
     @Column(columnDefinition = "TEXT")

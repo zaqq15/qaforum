@@ -28,6 +28,8 @@ public class ThreadService {
 
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     public List<ForumThread> getThreadsForCourse(Long courseId) {
         return threadRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
@@ -165,7 +167,19 @@ public class ThreadService {
             reply.setFileData(file.getBytes());
         }
 
-        return postRepository.save(reply);
+        Post savedReply = postRepository.save(reply);
+
+        // notify the thread creator that a new reply has been added
+        if (!thread.getPosts().isEmpty()) {
+            User threadOwner = thread.getPosts().get(0).getUser();
+            if (threadOwner != null && !threadOwner.getEmail().equals(author.getEmail())) {
+                notificationService.sendNotification(threadOwner.getEmail(),
+                    "New reply to your new thread: " + thread.getTitle());
+            }
+        }
+        return savedReply;
+
+
     }
 
     @Transactional
@@ -191,6 +205,10 @@ public class ThreadService {
 
         post.setAccepted(true);
         postRepository.saveAll(thread.getPosts());
+
+        if (post.getUser() != null && !post.getUser().getEmail().equals(currentUser.getEmail())) {
+            notificationService.sendNotification(post.getUser().getEmail(), "Your answer in '" + thread.getTitle() + "' has been accepted!");
+        }
     }
 
     // delete thread (hard delete)
