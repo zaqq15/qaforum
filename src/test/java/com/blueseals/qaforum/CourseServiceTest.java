@@ -36,7 +36,6 @@ class CourseServiceTest {
 
     @Test
     void createCourse_Success() {
-        // Arrange
         User professor = new User();
         professor.setId(1L);
         professor.setRole(Role.PROFESSOR);
@@ -44,10 +43,8 @@ class CourseServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(professor));
         when(courseRepository.save(any(Course.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act
-        Course created = courseService.createCourse("Intro to Java", "CS101", "Basics", 1L);
+            Course created = courseService.createCourse("Intro to Java", "CS101", "Basics", 1L);
 
-        // Assert
         assertNotNull(created);
         assertEquals("Intro to Java", created.getTitle());
         assertEquals("CS101", created.getCourseCode());
@@ -57,7 +54,6 @@ class CourseServiceTest {
 
     @Test
     void enrollStudent_Success() {
-        // Arrange
         Course course = new Course();
         course.setId(10L);
 
@@ -67,10 +63,8 @@ class CourseServiceTest {
         when(courseRepository.findById(10L)).thenReturn(Optional.of(course));
         when(userRepository.findByEmail("student@test.com")).thenReturn(Optional.of(student));
 
-        // Act
         courseService.enrollStudent(10L, "student@test.com");
 
-        // Assert
         assertTrue(course.getStudents().contains(student));
         verify(courseRepository, times(1)).save(course);
     }

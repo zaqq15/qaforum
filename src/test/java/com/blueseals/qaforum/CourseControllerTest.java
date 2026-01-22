@@ -46,19 +46,14 @@ class CourseControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // --- Constructor Test ---
-
     @Test
     void testControllerInitialization() {
-        // Requirement: Test Constructor/Bean creation logic
         assertNotNull(courseController);
     }
 
-    // --- Functionality Tests (At least 3) ---
 
     @Test
     void viewCourse_Success() {
-        // Functionality 1: View Course Logic
         Long courseId = 1L;
         Course course = new Course();
         course.setId(courseId);
@@ -74,10 +69,8 @@ class CourseControllerTest {
         when(userDetails.getUsername()).thenReturn("student@test.com");
         when(userService.findByEmail("student@test.com")).thenReturn(user);
 
-        // Act
         String viewName = courseController.viewCourse(courseId, userDetails, model);
 
-        // Assert
         assertEquals("course_view", viewName);
         verify(model).addAttribute(eq("course"), eq(course));
         verify(model).addAttribute(eq("currentUser"), eq("student@test.com"));
@@ -85,7 +78,6 @@ class CourseControllerTest {
 
     @Test
     void createCourse_Success_AsProfessor() {
-        // Functionality 2: Create Course Logic (Success)
         User prof = new User();
         prof.setRole(Role.PROFESSOR);
         prof.setId(10L);
@@ -93,24 +85,19 @@ class CourseControllerTest {
         when(userDetails.getUsername()).thenReturn("prof@test.com");
         when(userService.findByEmail("prof@test.com")).thenReturn(prof);
 
-        // Act
         String viewName = courseController.createCourse("Title", "Code", "Desc", userDetails);
 
-        // Assert
         assertEquals("redirect:/dashboard", viewName);
         verify(courseService).createCourse("Title", "Code", "Desc", 10L);
     }
 
     @Test
     void enrollInCourse_Success() {
-        // Functionality 3: Enroll Logic
         Long courseId = 1L;
         when(userDetails.getUsername()).thenReturn("student@test.com");
 
-        // Act
         String viewName = courseController.enrollInCourse(courseId, userDetails);
 
-        // Assert
         assertEquals("redirect:/courses/1", viewName);
         verify(courseService).enrollStudent(1L, "student@test.com");
     }

@@ -14,7 +14,7 @@
             --secondary: #0ea5e9;
             --success: #10b981;
             --warning: #f59e0b;
-            --danger: #ef4444;
+            --danger: #e7352f;
             --dark: #0f172a;
             --gray-50: #f8fafc;
             --gray-100: #f1f5f9;
@@ -453,7 +453,7 @@
 
         <div class="nav-actions">
             <a href="/shop" class="btn btn-warning-custom">🎁 Rewards Shop</a>
-            <a href="/admin/announcements" class="btn btn-outline-custom" sec:authorize="hasRole('ADMIN') or hasRole('PROFESSOR')">
+            <a href="/admin/announcements" class="btn btn-outline-custom" sec:authorize="hasRole('ADMIN')">
                 📢 Send Announcement
             </a>
             <a href="/profile" class="btn btn-outline-custom">My Profile</a>

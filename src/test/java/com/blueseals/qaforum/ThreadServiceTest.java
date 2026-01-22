@@ -38,7 +38,6 @@ class ThreadServiceTest {
 
     @Test
     void createThread_ShouldSaveThreadAndFirstPost() throws IOException {
-        // Arrange
         Course course = new Course();
         course.setId(1L);
         User author = new User();
@@ -50,10 +49,8 @@ class ThreadServiceTest {
         when(threadRepository.save(any(ForumThread.class))).thenAnswer(i -> i.getArgument(0));
         when(postRepository.save(any(Post.class))).thenAnswer(i -> i.getArgument(0));
 
-        // Act
         ForumThread result = threadService.createThread(1L, "Title", "Body", author, file);
 
-        // Assert
         assertNotNull(result);
         assertEquals("Title", result.getTitle());
         verify(postRepository, times(1)).save(any(Post.class));
@@ -61,14 +58,12 @@ class ThreadServiceTest {
 
     @Test
     void deletePost_ShouldDeletePost_WhenUserIsAuthor() {
-        // Arrange
         Post post = new Post();
         post.setId(5L);
         User author = new User();
         author.setId(10L);
         post.setUser(author);
 
-        // Mock relationships
         ForumThread thread = new ForumThread();
         Course course = new Course();
         course.setProfessor(new User());
@@ -78,10 +73,9 @@ class ThreadServiceTest {
 
         when(postRepository.findById(5L)).thenReturn(Optional.of(post));
 
-        // Act
+
         threadService.deletePost(5L, author);
 
-        // Assert
         assertTrue(post.isDeleted());
         assertEquals("[THIS REPLY HAS BEEN DELETED]", post.getContentText());
         verify(postRepository, times(1)).save(post);

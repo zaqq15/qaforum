@@ -34,7 +34,7 @@ class ShopServiceTest {
     @Test
     void purchaseItem_Success() {
         User user = new User();
-        user.setReputation(100);
+        user.setReputation(60);
         String itemId = "badge_gold"; // Cost 50
 
         shopService.purchaseItem(user, itemId);
