@@ -126,4 +126,14 @@ public class ThreadController {
         return "redirect:/thread/" + post.getThread().getId();
     }
 
+    @PostMapping("post/{id}/comment")
+    public String comment(@PathVariable Long id,
+                          @RequestParam String comment,
+                          @AuthenticationPrincipal UserDetails userDetails) {
+        User author = userService.findByEmail(userDetails.getUsername());
+        Post post = threadService.getPostById(id);
+        threadService.addComment(id, comment, author);
+        return "redirect:/thread/" + post.getThread().getId();
+    }
+
 }

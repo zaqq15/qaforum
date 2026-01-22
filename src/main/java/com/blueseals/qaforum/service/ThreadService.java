@@ -1,11 +1,13 @@
 package com.blueseals.qaforum.service;
 
 import com.blueseals.qaforum.model.*;
+import com.blueseals.qaforum.repository.CommentRepository;
 import com.blueseals.qaforum.repository.ForumThreadRepository;
 import com.blueseals.qaforum.repository.CourseRepository;
 import com.blueseals.qaforum.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +32,8 @@ public class ThreadService {
     private PostRepository postRepository;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private CommentRepository commentRepository;
 
     public List<ForumThread> getThreadsForCourse(Long courseId) {
         return threadRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
@@ -180,6 +184,20 @@ public class ThreadService {
         return savedReply;
 
 
+    }
+
+    @Transactional
+    public Comment addComment(Long postId, String content, User author) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setPost(post);
+        comment.setAuthor(author);
+        comment.setCreatedAt(LocalDateTime.now());
+
+        return commentRepository.save(comment);
     }
 
     @Transactional

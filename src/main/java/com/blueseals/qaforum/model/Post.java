@@ -2,9 +2,14 @@ package com.blueseals.qaforum.model;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "posts")
@@ -54,4 +59,8 @@ public class Post {
                 .mapToInt(v -> v.getType() == Vote.VoteType.UP ? 1 : -1)
                 .sum();
     }
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("created_at ASC")
+    private List<Comment> comments = new ArrayList<>();
 }
