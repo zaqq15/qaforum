@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <title th:text="${course.title + ' - Askademic'}">Course Title - Askademic</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -425,129 +427,147 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <!-- Header -->
-    <div class="page-header">
-        <a href="/dashboard" class="back-link">
-            <span>←</span>
-            <span>Back to Dashboard</span>
-        </a>
+    <div class="container">
+        <!-- Flash Messages -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert"
+            style="border-radius: 12px; margin-bottom: 24px; background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 16px;">
+            <span th:text="${error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert"
+            style="border-radius: 12px; margin-bottom: 24px; background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px;">
+            <span th:text="${success}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+        </div>
 
-        <div class="header-content">
-            <div class="course-info">
-                <span class="course-code-badge" th:text="${course.courseCode}">MAT-101</span>
-                <h1 th:text="${course.title}">Calculus 101</h1>
-                <p class="course-description" th:text="${course.description}">Course description goes here...</p>
+        <!-- Header -->
+        <div class="page-header">
+            <a href="/dashboard" class="back-link">
+                <span>←</span>
+                <span>Back to Dashboard</span>
+            </a>
+
+            <div class="header-content">
+                <div class="course-info">
+                    <span class="course-code-badge" th:text="${course.courseCode}">MAT-101</span>
+                    <h1 th:text="${course.title}">Calculus 101</h1>
+                    <p class="course-description" th:text="${course.description}">Course description goes here...</p>
+                </div>
+
+                <div class="action-buttons" th:if="${canManage}">
+                    <a th:href="@{/courses/{id}/edit(id=${course.id})}" class="btn btn-warning">
+                        Edit
+                    </a>
+                    <form th:action="@{/courses/{id}/delete(id=${course.id})}" method="post"
+                        onsubmit="return confirm('Are you sure? This will delete the course and ALL threads!');">
+                        <button type="submit" class="btn btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                </div>
             </div>
+        </div>
 
-            <div class="action-buttons" th:if="${canManage}">
-                <a th:href="@{/courses/{id}/edit(id=${course.id})}" class="btn btn-warning">
-                    Edit
-                </a>
-                <form th:action="@{/courses/{id}/delete(id=${course.id})}" method="post"
-                      onsubmit="return confirm('Are you sure? This will delete the course and ALL threads!');">
-                    <button type="submit" class="btn btn-danger">
-                        Delete
-                    </button>
+        <!-- Search Bar -->
+        <div class="search-section">
+            <form th:action="@{/courses/{id}/search(id=${course.id})}" method="get" class="search-form">
+                <input type="text" name="query" class="search-input" placeholder="Search threads in this course..."
+                    required>
+                <button type="submit" class="btn-search">Search</button>
+            </form>
+        </div>
+
+        <!-- New Question Form -->
+        <div class="question-form-card">
+            <div class="card-header-custom">
+                <h3>💬 Ask a Question</h3>
+            </div>
+            <div class="card-body-custom">
+                <form th:action="@{/courses/{id}/thread(id=${course.id})}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label">Topic / Title</label>
+                        <input type="text" name="title" class="form-control"
+                            placeholder="e.g., When is the midterm exam?" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Details</label>
+                        <textarea name="content" class="form-control" placeholder="Write your question here..."
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Attachment (Optional)</label>
+                        <input type="file" name="file" class="form-control">
+                    </div>
+                    <div class="form-footer">
+                        <div class="anonymous-notice">
+                            <span>Your name will be hidden from other students (Anonymous)</span>
+                        </div>
+                        <button type="submit" class="btn-submit">Post Question</button>
+                    </div>
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- Search Bar -->
-    <div class="search-section">
-        <form th:action="@{/courses/{id}/search(id=${course.id})}" method="get" class="search-form">
-            <input type="text" name="query" class="search-input" placeholder="Search threads in this course..." required>
-            <button type="submit" class="btn-search">Search</button>
-        </form>
-    </div>
+        <!-- List of Threads -->
+        <h2 class="section-title">Recent Discussions</h2>
 
-    <!-- New Question Form -->
-    <div class="question-form-card">
-        <div class="card-header-custom">
-            <h3>💬 Ask a Question</h3>
+        <div th:if="${threads == null or threads.empty}" class="alert-info">
+            💡 No questions yet. Be the first to ask!
         </div>
-        <div class="card-body-custom">
-            <form th:action="@{/courses/{id}/thread(id=${course.id})}" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label class="form-label">Topic / Title</label>
-                    <input type="text" name="title" class="form-control" placeholder="e.g., When is the midterm exam?" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Details</label>
-                    <textarea name="content" class="form-control" placeholder="Write your question here..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Attachment (Optional)</label>
-                    <input type="file" name="file" class="form-control">
-                </div>
-                <div class="form-footer">
-                    <div class="anonymous-notice">
-                        <span>Your name will be hidden from other students (Anonymous)</span>
-                    </div>
-                    <button type="submit" class="btn-submit">Post Question</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- List of Threads -->
-    <h2 class="section-title">Recent Discussions</h2>
-
-    <div th:if="${threads == null or threads.empty}" class="alert-info">
-        💡 No questions yet. Be the first to ask!
-    </div>
-
-    <a th:if="${threads != null and !threads.empty}"
-       th:each="thread : ${threads}"
-       th:href="@{/thread/{id}(id=${thread.id})}"
-       class="thread-card-link">
-        <div class="thread-card">
-            <h3 class="thread-title" th:text="${thread.title}">
-                Thread Title
-            </h3>
-            <div class="thread-meta">
-                <span class="meta-item">
-                    <span th:text="${#temporals.format(thread.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
-                </span>
-                <span class="meta-item">
-                    💬 <span th:text="${#lists.size(thread.posts) > 0 ? #lists.size(thread.posts) - 1 : 0} + ' replies'">0 replies</span>
-                </span>
+        <a th:if="${threads != null and !threads.empty}" th:each="thread : ${threads}"
+            th:href="@{/thread/{id}(id=${thread.id})}" class="thread-card-link">
+            <div class="thread-card">
+                <h3 class="thread-title" th:text="${thread.title}">
+                    Thread Title
+                </h3>
+                <div class="thread-meta">
+                    <span class="meta-item">
+                        <span th:text="${#temporals.format(thread.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span>
+                    </span>
+                    <span class="meta-item">
+                        💬 <span
+                            th:text="${#lists.size(thread.posts) > 0 ? #lists.size(thread.posts) - 1 : 0} + ' replies'">0
+                            replies</span>
+                    </span>
+                </div>
             </div>
-        </div>
-    </a>
+        </a>
 
-</div>
+    </div>
 
-<!-- Notification Toast Container -->
-<div id="notification-toast" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    <!-- Notification Toast Container -->
+    <div id="notification-toast" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
-<!-- WebSocket Script -->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    var stompClient = null;
-    var currentUserEmail = /*[[${#authentication.name}]]*/ 'user';
+    <!-- WebSocket Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        var stompClient = null;
+        var currentUserEmail = /*[[${#authentication.name}]]*/ 'user';
 
-    function connect() {
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-            stompClient.subscribe('/user/queue/notifications', function (notification) {
-                showNotification(notification.body);
+        function connect() {
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/user/queue/notifications', function (notification) {
+                    showNotification(notification.body);
+                });
+            }, function (error) {
+                console.log('WebSocket connection error: ' + error);
+                setTimeout(connect, 5000);
             });
-        }, function(error) {
-            console.log('WebSocket connection error: ' + error);
-            setTimeout(connect, 5000);
-        });
-    }
+        }
 
-    function showNotification(message) {
-        var toastHTML = `
+        function showNotification(message) {
+            var toastHTML = `
             <div class="toast show align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
                  style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
               <div class="d-flex">
@@ -558,17 +578,18 @@
               </div>
             </div>
         `;
-        document.getElementById("notification-toast").innerHTML = toastHTML;
-        setTimeout(() => {
-            var toasts = document.querySelectorAll('.toast');
-            toasts.forEach(t => t.classList.remove('show'));
-        }, 5000);
-    }
+            document.getElementById("notification-toast").innerHTML = toastHTML;
+            setTimeout(() => {
+                var toasts = document.querySelectorAll('.toast');
+                toasts.forEach(t => t.classList.remove('show'));
+            }, 5000);
+        }
 
-    window.addEventListener('load', function() {
-        connect();
-    });
-</script>
+        window.addEventListener('load', function () {
+            connect();
+        });
+    </script>
 
 </body>
+
 </html>

@@ -12,7 +12,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+import com.blueseals.qaforum.dto.*;
 
 @Controller
 public class UserController {
@@ -35,23 +39,28 @@ public class UserController {
 
     @PostMapping("/profile/change-password")
     public String changePassword(@AuthenticationPrincipal UserDetails userDetails,
-                                 @RequestParam String currentPassword,
-                                 @RequestParam String newPassword,
-                                 @RequestParam String confirmPassword,
+                                 @Valid @ModelAttribute PasswordChangeRequest request,
+                                 BindingResult bindingResult,
                                  RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/profile";
+        }
 
         User user = userService.findByEmail(userDetails.getUsername());
 
-        if (!userService.verifyPassword(user, currentPassword)) {
+        if (!userService.verifyPassword(user, request.getCurrentPassword())) {
             redirectAttributes.addFlashAttribute("error", "Current password is incorrect");
             return "redirect:/profile";
         }
 
-        if (!newPassword.equals(confirmPassword)) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             redirectAttributes.addFlashAttribute("error", "New passwords do not match");
+            return "redirect:/profile";
         }
 
-        userService.updatePassword(user, newPassword);
+        userService.updatePassword(user, request.getNewPassword());
 
         redirectAttributes.addFlashAttribute("success", "Password updated successfully");
         return "redirect:/profile";

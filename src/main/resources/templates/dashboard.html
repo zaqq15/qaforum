@@ -467,6 +467,16 @@
 <!-- Main Content -->
 <div class="main-content">
 
+    <!-- Flash Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; margin-bottom: 24px; background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 16px;">
+        <span th:text="${error}">Error message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+    </div>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; margin-bottom: 24px; background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px;">
+        <span th:text="${success}">Success message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+    </div>
+
     <!-- Create Course Section (Professors/Admins Only) -->
     <div class="section-card" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
         <div class="section-header">

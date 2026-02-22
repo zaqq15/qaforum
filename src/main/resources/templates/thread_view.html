@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <title th:text="${thread.title + ' - Askademic'}">Thread Title - Askademic</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -730,289 +732,323 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <a th:if="${thread.course != null}" th:href="@{/courses/{id}(id=${thread.course.id})}" class="back-link">
-        <span>←</span>
-        <span>Back to Course</span>
-    </a>
-    <a th:if="${thread.course == null}" href="/dashboard" class="back-link">
-        <span>←</span>
-        <span>Back to Dashboard</span>
-    </a>
-
-    <!-- Thread Header with Original Post -->
-    <div class="thread-header-outer" th:if="${!thread.posts.empty}" th:with="originalPost=${thread.posts[0]}">
-        <!-- Voting Section for Entire Thread -->
-        <div class="thread-vote-section" th:unless="${originalPost.deleted}">
-            <form th:action="@{/post/{id}/vote(id=${originalPost.id})}" method="post">
-                <input type="hidden" name="type" value="UP">
-                <button type="submit" class="vote-btn">▲</button>
-            </form>
-
-            <span class="vote-count" th:text="${originalPost.score}">0</span>
-
-            <form th:action="@{/post/{id}/vote(id=${originalPost.id})}" method="post">
-                <input type="hidden" name="type" value="DOWN">
-                <button type="submit" class="vote-btn">▼</button>
-            </form>
+    <div class="container">
+        <!-- Flash Messages -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert"
+            style="border-radius: 12px; margin-bottom: 24px; background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 16px;">
+            <span th:text="${error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert"
+            style="border-radius: 12px; margin-bottom: 24px; background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px;">
+            <span th:text="${success}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
         </div>
 
-        <!-- Thread Content Card -->
-        <div class="thread-header">
-            <!-- Title with Delete -->
-            <div class="thread-title-section">
-                <h1 th:text="${thread.title}">Thread Title</h1>
+        <a th:if="${thread.course != null}" th:href="@{/courses/{id}(id=${thread.course.id})}" class="back-link">
+            <span>←</span>
+            <span>Back to Course</span>
+        </a>
+        <a th:if="${thread.course == null}" href="/dashboard" class="back-link">
+            <span>←</span>
+            <span>Back to Dashboard</span>
+        </a>
 
-                <!-- Delete button for thread (only for author or admin) -->
-                <button class="thread-delete-button"
-                        th:if="${(originalPost.user != null and originalPost.user.email == #authentication.name) or #authorization.expression('hasRole(''ADMIN'')') or canMark}"
-                        th:onclick="'if(confirm(\'Delete this thread?\')) document.getElementById(\'delete-thread-form\').submit()'">
-                    🗑️
-                </button>
-                <form id="delete-thread-form" th:action="@{/thread/{id}/delete(id=${thread.id})}" method="post" style="display: none;"></form>
-            </div>
-
-            <!-- Original Post Content -->
-            <div class="original-post-content">
-                <div class="original-post-meta">
-                    <!-- Anonymous Logic -->
-                    <span class="author-name anonymous"
-                          th:if="${originalPost.user == null or (originalPost.user.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and originalPost.user.email != #authentication.name)}">
-                        Anonymous Student
-                    </span>
-
-                    <!-- Revealed Logic -->
-                    <span th:if="${originalPost.user != null and (originalPost.user.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or originalPost.user.email == #authentication.name)}"
-                          style="display: inline-flex; align-items: center; gap: 6px;">
-                        <span class="author-name revealed"
-                              th:classappend="${originalPost.user.activeBadge != null and originalPost.user.activeBadge == 'color_blue'} ? 'username-blue' : ''"
-                              th:text="${originalPost.user.fullName}">Name</span>
-
-                        <span th:if="${originalPost.user.activeBadge != null and originalPost.user.activeBadge == 'badge_gold'}" class="badge-icon" title="Gold Member">🥇</span>
-                        <span th:if="${originalPost.user.activeBadge != null and originalPost.user.activeBadge == 'badge_wizard'}" class="badge-icon" title="Code Wizard">🧙‍♂️</span>
-
-                        <span th:if="${originalPost.user.role.name() == 'STUDENT'}" class="role-badge">(Student)</span>
-                    </span>
-
-                    <span class="post-timestamp">•</span>
-                    <span class="post-timestamp" th:text="${#temporals.format(originalPost.createdAt, 'dd MMM yyyy, HH:mm')}">Time</span>
-                </div>
-
-                <p class="original-post-text" th:text="${originalPost.contentText}">Original question content...</p>
-
-                <div th:if="${originalPost.fileName != null}" class="original-post-attachment">
-                    <a th:href="@{/download/post/{id}(id=${originalPost.id})}" target="_blank" class="attachment">
-                        📎 <span th:text="${originalPost.fileName}">file.txt</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <h2 class="section-title" th:if="${thread.posts.size() > 1}">
-        <span th:text="${thread.posts.size() - 1} + ' Replies'">Replies</span>
-    </h2>
-
-    <!-- Replies (All posts except the first one) -->
-    <div th:each="post, iterStat : ${thread.posts}"
-         th:if="${iterStat.index > 0}"
-         class="post-card"
-         th:classappend="${post.accepted ? 'accepted' : (post.deleted ? 'deleted' : '')}">
-
-        <div class="post-content-wrapper">
-            <!-- Voting Section -->
-            <div class="vote-section" th:unless="${post.deleted}">
-                <form th:action="@{/post/{id}/vote(id=${post.id})}" method="post">
+        <!-- Thread Header with Original Post -->
+        <div class="thread-header-outer" th:if="${!thread.posts.empty}" th:with="originalPost=${thread.posts[0]}">
+            <!-- Voting Section for Entire Thread -->
+            <div class="thread-vote-section" th:unless="${originalPost.deleted}">
+                <form th:action="@{/post/{id}/vote(id=${originalPost.id})}" method="post">
                     <input type="hidden" name="type" value="UP">
                     <button type="submit" class="vote-btn">▲</button>
                 </form>
 
-                <span class="vote-count" th:text="${post.score}">0</span>
+                <span class="vote-count" th:text="${originalPost.score}">0</span>
 
-                <form th:action="@{/post/{id}/vote(id=${post.id})}" method="post">
+                <form th:action="@{/post/{id}/vote(id=${originalPost.id})}" method="post">
                     <input type="hidden" name="type" value="DOWN">
                     <button type="submit" class="vote-btn">▼</button>
                 </form>
             </div>
 
-            <!-- Post Content -->
-            <div class="post-main-content">
-                <div class="post-header">
-                    <div class="author-info">
-                        <span th:if="${post.accepted and !post.deleted}" class="solution-badge">
-                            ✓ Accepted Answer
+            <!-- Thread Content Card -->
+            <div class="thread-header">
+                <!-- Title with Delete -->
+                <div class="thread-title-section">
+                    <h1 th:text="${thread.title}">Thread Title</h1>
+
+                    <!-- Delete button for thread (only for author or admin) -->
+                    <button class="thread-delete-button"
+                        th:if="${(originalPost.user != null and originalPost.user.email == #authentication.name) or #authorization.expression('hasRole(''ADMIN'')') or canMark}"
+                        th:onclick="'if(confirm(\'Delete this thread?\')) document.getElementById(\'delete-thread-form\').submit()'">
+                        🗑️
+                    </button>
+                    <form id="delete-thread-form" th:action="@{/thread/{id}/delete(id=${thread.id})}" method="post"
+                        style="display: none;"></form>
+                </div>
+
+                <!-- Original Post Content -->
+                <div class="original-post-content">
+                    <div class="original-post-meta">
+                        <!-- Anonymous Logic -->
+                        <span class="author-name anonymous"
+                            th:if="${originalPost.user == null or (originalPost.user.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and originalPost.user.email != #authentication.name)}">
+                            Anonymous Student
                         </span>
 
-                        <div th:if="${post.deleted}">
-                            <span class="author-name deleted">[Deleted]</span>
-                        </div>
+                        <!-- Revealed Logic -->
+                        <span
+                            th:if="${originalPost.user != null and (originalPost.user.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or originalPost.user.email == #authentication.name)}"
+                            style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span class="author-name revealed"
+                                th:classappend="${originalPost.user.activeBadge != null and originalPost.user.activeBadge == 'color_blue'} ? 'username-blue' : ''"
+                                th:text="${originalPost.user.fullName}">Name</span>
 
-                        <div th:unless="${post.deleted}">
-                            <!-- Anonymous Logic -->
-                            <span class="author-name anonymous"
-                                  th:if="${post.user == null or (post.user.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and post.user.email != #authentication.name)}">
-                                Anonymous Student
-                            </span>
+                            <span
+                                th:if="${originalPost.user.activeBadge != null and originalPost.user.activeBadge == 'badge_gold'}"
+                                class="badge-icon" title="Gold Member">🥇</span>
+                            <span
+                                th:if="${originalPost.user.activeBadge != null and originalPost.user.activeBadge == 'badge_wizard'}"
+                                class="badge-icon" title="Code Wizard">🧙‍♂️</span>
 
-                            <!-- Revealed Logic with Shop Items -->
-                            <div th:if="${post.user != null and (post.user.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or post.user.email == #authentication.name)}"
-                                 style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span th:if="${originalPost.user.role.name() == 'STUDENT'}"
+                                class="role-badge">(Student)</span>
+                        </span>
 
-                                <span class="author-name revealed"
-                                      th:classappend="${post.user.activeBadge != null and post.user.activeBadge == 'color_blue'} ? 'username-blue' : ''"
-                                      th:text="${post.user.fullName}">Name</span>
-
-                                <span th:if="${post.user.activeBadge != null and post.user.activeBadge == 'badge_gold'}" class="badge-icon" title="Gold Member">🥇</span>
-                                <span th:if="${post.user.activeBadge != null and post.user.activeBadge == 'badge_wizard'}" class="badge-icon" title="Code Wizard">🧙‍♂️</span>
-
-                                <span th:if="${post.user.role.name() == 'STUDENT'}" class="role-badge">(Student)</span>
-                            </div>
-                        </div>
+                        <span class="post-timestamp">•</span>
+                        <span class="post-timestamp"
+                            th:text="${#temporals.format(originalPost.createdAt, 'dd MMM yyyy, HH:mm')}">Time</span>
                     </div>
 
-                    <span class="post-timestamp" th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy, HH:mm')}">Time</span>
+                    <p class="original-post-text" th:text="${originalPost.contentText}">Original question content...</p>
+
+                    <div th:if="${originalPost.fileName != null}" class="original-post-attachment">
+                        <a th:href="@{/download/post/{id}(id=${originalPost.id})}" target="_blank" class="attachment">
+                            📎 <span th:text="${originalPost.fileName}">file.txt</span>
+                        </a>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <p class="post-text" th:classappend="${post.deleted ? 'deleted' : ''}" th:text="${post.contentText}">Content...</p>
+        <h2 class="section-title" th:if="${thread.posts.size() > 1}">
+            <span th:text="${thread.posts.size() - 1} + ' Replies'">Replies</span>
+        </h2>
 
-                <div th:if="${post.fileName != null and !post.deleted}">
-                    <a th:href="@{/download/post/{id}(id=${post.id})}" target="_blank" class="attachment">
-                        📎 <span th:text="${post.fileName}">file.txt</span>
-                    </a>
-                </div>
+        <!-- Replies (All posts except the first one) -->
+        <div th:each="post, iterStat : ${thread.posts}" th:if="${iterStat.index > 0}" class="post-card"
+            th:classappend="${post.accepted ? 'accepted' : (post.deleted ? 'deleted' : '')}">
 
-                <!-- Actions -->
-                <div class="post-actions" th:if="${!post.deleted}">
-                    <button class="action-button" th:if="${canMark and !post.accepted and iterStat.index > 0}"
-                            th:onclick="'document.getElementById(\'mark-form-' + ${post.id} + '\').submit()'">
-                        ✓ Mark as Solution
-                    </button>
-                    <form th:id="'mark-form-' + ${post.id}" th:action="@{/thread/{id}/mark/{postId}(id=${thread.id}, postId=${post.id})}" method="post" style="display: none;"></form>
+            <div class="post-content-wrapper">
+                <!-- Voting Section -->
+                <div class="vote-section" th:unless="${post.deleted}">
+                    <form th:action="@{/post/{id}/vote(id=${post.id})}" method="post">
+                        <input type="hidden" name="type" value="UP">
+                        <button type="submit" class="vote-btn">▲</button>
+                    </form>
 
-                    <button class="action-button" th:onclick="'toggleCommentForm(' + ${post.id} + ')'">
-                        💬 Add Comment
-                    </button>
+                    <span class="vote-count" th:text="${post.score}">0</span>
 
-                    <button class="action-button delete-button"
-                            th:if="${(post.user != null and post.user.email == #authentication.name) or #authorization.expression('hasRole(''ADMIN'')') or canMark}"
-                            th:onclick="'if(confirm(\'Delete this post?\')) document.getElementById(\'delete-form-' + ${post.id} + '\').submit()'">
-                        🗑️ Delete
-                    </button>
-                    <form th:id="'delete-form-' + ${post.id}" th:action="@{/post/{id}/delete(id=${post.id})}" method="post" style="display: none;"></form>
-                </div>
-
-                <!-- Add Comment Form (Hidden by default) -->
-                <div th:id="'comment-form-' + ${post.id}" class="comment-form-container" style="display: none;">
-                    <form th:action="@{/post/{id}/comment(id=${post.id})}" method="post" class="comment-form">
-                        <input type="text" name="comment" class="comment-input" placeholder="Write a comment..." required>
-                        <button type="submit" class="btn-comment">Post Comment</button>
+                    <form th:action="@{/post/{id}/vote(id=${post.id})}" method="post">
+                        <input type="hidden" name="type" value="DOWN">
+                        <button type="submit" class="vote-btn">▼</button>
                     </form>
                 </div>
 
-                <!-- Nested Comments Section -->
-                <div class="comment-section" th:unless="${post.comments == null or post.comments.empty}">
-                    <div th:each="comment : ${post.comments}" class="comment-item">
-                        <div class="comment-content" th:text="${comment.content}">Comment text</div>
-
-                        <div class="comment-meta">
-                            <!-- Anonymous for students (unless admin or own comment) -->
-                            <span class="comment-author"
-                                  th:if="${comment.author == null or (comment.author.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and comment.author.email != #authentication.name)}">
-                                Anonymous
+                <!-- Post Content -->
+                <div class="post-main-content">
+                    <div class="post-header">
+                        <div class="author-info">
+                            <span th:if="${post.accepted and !post.deleted}" class="solution-badge">
+                                ✓ Accepted Answer
                             </span>
 
-                            <!-- Revealed for non-students or admin or own comment -->
-                            <span class="comment-author"
-                                  th:if="${comment.author != null and (comment.author.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or comment.author.email == #authentication.name)}"
-                                  th:text="${comment.author.fullName}">
-                                User
-                            </span>
+                            <div th:if="${post.deleted}">
+                                <span class="author-name deleted">[Deleted]</span>
+                            </div>
 
-                            <span class="comment-separator">•</span>
-                            <span class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd MMM HH:mm')}">Date</span>
+                            <div th:unless="${post.deleted}">
+                                <!-- Anonymous Logic -->
+                                <span class="author-name anonymous"
+                                    th:if="${post.user == null or (post.user.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and post.user.email != #authentication.name)}">
+                                    Anonymous Student
+                                </span>
+
+                                <!-- Revealed Logic with Shop Items -->
+                                <div th:if="${post.user != null and (post.user.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or post.user.email == #authentication.name)}"
+                                    style="display: inline-flex; align-items: center; gap: 6px;">
+
+                                    <span class="author-name revealed"
+                                        th:classappend="${post.user.activeBadge != null and post.user.activeBadge == 'color_blue'} ? 'username-blue' : ''"
+                                        th:text="${post.user.fullName}">Name</span>
+
+                                    <span
+                                        th:if="${post.user.activeBadge != null and post.user.activeBadge == 'badge_gold'}"
+                                        class="badge-icon" title="Gold Member">🥇</span>
+                                    <span
+                                        th:if="${post.user.activeBadge != null and post.user.activeBadge == 'badge_wizard'}"
+                                        class="badge-icon" title="Code Wizard">🧙‍♂️</span>
+
+                                    <span th:if="${post.user.role.name() == 'STUDENT'}"
+                                        class="role-badge">(Student)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <span class="post-timestamp"
+                            th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy, HH:mm')}">Time</span>
+                    </div>
+
+                    <p class="post-text" th:classappend="${post.deleted ? 'deleted' : ''}"
+                        th:text="${post.contentText}">Content...</p>
+
+                    <div th:if="${post.fileName != null and !post.deleted}">
+                        <a th:href="@{/download/post/{id}(id=${post.id})}" target="_blank" class="attachment">
+                            📎 <span th:text="${post.fileName}">file.txt</span>
+                        </a>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="post-actions" th:if="${!post.deleted}">
+                        <button class="action-button" th:if="${canMark and !post.accepted and iterStat.index > 0}"
+                            th:onclick="'document.getElementById(\'mark-form-' + ${post.id} + '\').submit()'">
+                            ✓ Mark as Solution
+                        </button>
+                        <form th:id="'mark-form-' + ${post.id}"
+                            th:action="@{/thread/{id}/mark/{postId}(id=${thread.id}, postId=${post.id})}" method="post"
+                            style="display: none;"></form>
+
+                        <button class="action-button" th:onclick="'toggleCommentForm(' + ${post.id} + ')'">
+                            💬 Add Comment
+                        </button>
+
+                        <button class="action-button delete-button"
+                            th:if="${(post.user != null and post.user.email == #authentication.name) or #authorization.expression('hasRole(''ADMIN'')') or canMark}"
+                            th:onclick="'if(confirm(\'Delete this post?\')) document.getElementById(\'delete-form-' + ${post.id} + '\').submit()'">
+                            🗑️ Delete
+                        </button>
+                        <form th:id="'delete-form-' + ${post.id}" th:action="@{/post/{id}/delete(id=${post.id})}"
+                            method="post" style="display: none;"></form>
+                    </div>
+
+                    <!-- Add Comment Form (Hidden by default) -->
+                    <div th:id="'comment-form-' + ${post.id}" class="comment-form-container" style="display: none;">
+                        <form th:action="@{/post/{id}/comment(id=${post.id})}" method="post" class="comment-form">
+                            <input type="text" name="comment" class="comment-input" placeholder="Write a comment..."
+                                required>
+                            <button type="submit" class="btn-comment">Post Comment</button>
+                        </form>
+                    </div>
+
+                    <!-- Nested Comments Section -->
+                    <div class="comment-section" th:unless="${post.comments == null or post.comments.empty}">
+                        <div th:each="comment : ${post.comments}" class="comment-item">
+                            <div class="comment-content" th:text="${comment.content}">Comment text</div>
+
+                            <div class="comment-meta">
+                                <!-- Anonymous for students (unless admin or own comment) -->
+                                <span class="comment-author"
+                                    th:if="${comment.author == null or (comment.author.role.name() == 'STUDENT' and !#authorization.expression('hasRole(''ADMIN'')') and comment.author.email != #authentication.name)}">
+                                    Anonymous
+                                </span>
+
+                                <!-- Revealed for non-students or admin or own comment -->
+                                <span class="comment-author"
+                                    th:if="${comment.author != null and (comment.author.role.name() != 'STUDENT' or #authorization.expression('hasRole(''ADMIN'')') or comment.author.email == #authentication.name)}"
+                                    th:text="${comment.author.fullName}">
+                                    User
+                                </span>
+
+                                <span class="comment-separator">•</span>
+                                <span class="comment-date"
+                                    th:text="${#temporals.format(comment.createdAt, 'dd MMM HH:mm')}">Date</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Reply Form -->
+        <div class="reply-form-card">
+            <h3>Add Your Reply</h3>
+            <form th:action="@{/thread/{id}/reply(id=${thread.id})}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <textarea name="content" class="form-control" placeholder="Type your answer or comment here..."
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="file" name="file" class="form-control">
+                </div>
+                <button type="submit" class="btn-submit">Post Reply</button>
+            </form>
+        </div>
+
     </div>
 
-    <!-- Reply Form -->
-    <div class="reply-form-card">
-        <h3>Add Your Reply</h3>
-        <form th:action="@{/thread/{id}/reply(id=${thread.id})}" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <textarea name="content" class="form-control" placeholder="Type your answer or comment here..." required></textarea>
-            </div>
-            <div class="form-group">
-                <input type="file" name="file" class="form-control">
-            </div>
-            <button type="submit" class="btn-submit">Post Reply</button>
-        </form>
-    </div>
+    <!-- Notification Toast Container -->
+    <div id="notification-toast" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
-</div>
-
-<!-- Notification Toast Container -->
-<div id="notification-toast" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-
-<!-- WebSocket Script -->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    // Toggle comment form visibility
-    function toggleCommentForm(postId) {
-        var form = document.getElementById('comment-form-' + postId);
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-        } else {
-            form.style.display = 'none';
+    <!-- WebSocket Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Toggle comment form visibility
+        function toggleCommentForm(postId) {
+            var form = document.getElementById('comment-form-' + postId);
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
         }
-    }
 
-    var stompClient = null;
-    var currentUserEmail = /*[[${#authentication.name}]]*/ 'user';
+        var stompClient = null;
+        var currentUserEmail = /*[[${#authentication.name}]]*/ 'user';
 
-    function connect() {
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
+        function connect() {
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
 
-            // 1. Private User Notifications (Replies)
-            stompClient.subscribe('/user/queue/notifications', function (notification) {
-                showNotification(notification.body, 'primary');
-            });
+                // 1. Private User Notifications (Replies)
+                stompClient.subscribe('/user/queue/notifications', function (notification) {
+                    showNotification(notification.body, 'primary');
+                });
 
-            // 2. Global Announcements - Async Threaded (with delay)
-            stompClient.subscribe('/topic/announcements', function (notification) {
+                // 2. Global Announcements - Async Threaded (with delay)
+                stompClient.subscribe('/topic/announcements', function (notification) {
 
-                // 3. Global Notifications - Instant
-                stompClient.subscribe('/topic/global', function (notification) {
+                    // 3. Global Notifications - Instant
+                    stompClient.subscribe('/topic/global', function (notification) {
+                        showNotification(notification.body, 'danger');
+                    });
                     showNotification(notification.body, 'danger');
                 });
-                showNotification(notification.body, 'danger');
+            }, function (error) {
+                console.log('WebSocket connection error: ' + error);
+                setTimeout(connect, 5000);
             });
-        }, function(error) {
-            console.log('WebSocket connection error: ' + error);
-            setTimeout(connect, 5000);
-        });
-    }
-
-    function showNotification(message, type) {
-        var gradient = '';
-        if (type === 'primary') {
-            gradient = 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)';
-        } else if (type === 'danger') {
-            gradient = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-        } else if (type === 'success') {
-            gradient = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
         }
 
-        var toastHTML = `
+        function showNotification(message, type) {
+            var gradient = '';
+            if (type === 'primary') {
+                gradient = 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)';
+            } else if (type === 'danger') {
+                gradient = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            } else if (type === 'success') {
+                gradient = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            }
+
+            var toastHTML = `
             <div class="toast show align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
                  style="background: ${gradient}; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); margin-bottom: 10px;">
               <div class="d-flex">
@@ -1024,25 +1060,26 @@
             </div>
         `;
 
-        var container = document.getElementById("notification-toast");
-        var tempDiv = document.createElement('div');
-        tempDiv.innerHTML = toastHTML;
-        container.appendChild(tempDiv.firstElementChild);
+            var container = document.getElementById("notification-toast");
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = toastHTML;
+            container.appendChild(tempDiv.firstElementChild);
 
-        // Auto hide after 5s
-        setTimeout(() => {
-            var toasts = container.querySelectorAll('.toast');
-            if (toasts.length > 0) {
-                toasts[toasts.length - 1].classList.remove('show');
-                setTimeout(() => toasts[toasts.length - 1].remove(), 300);
-            }
-        }, 5000);
-    }
+            // Auto hide after 5s
+            setTimeout(() => {
+                var toasts = container.querySelectorAll('.toast');
+                if (toasts.length > 0) {
+                    toasts[toasts.length - 1].classList.remove('show');
+                    setTimeout(() => toasts[toasts.length - 1].remove(), 300);
+                }
+            }, 5000);
+        }
 
-    window.addEventListener('load', function() {
-        connect();
-    });
-</script>
+        window.addEventListener('load', function () {
+            connect();
+        });
+    </script>
 
 </body>
+
 </html>

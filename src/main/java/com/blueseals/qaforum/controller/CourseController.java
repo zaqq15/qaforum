@@ -16,6 +16,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+import com.blueseals.qaforum.dto.*;
 
 import javax.xml.transform.sax.SAXResult;
 import java.io.IOException;
@@ -64,13 +68,18 @@ public class CourseController {
     // create a new thread
     @PostMapping("/{id}/thread")
     public String createThread(@PathVariable Long id,
-                               @RequestParam String title,
-                               @RequestParam String content,
-                               @RequestParam(required = false) MultipartFile file,
+                               @Valid @ModelAttribute ThreadCreateRequest request,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes,
                                @AuthenticationPrincipal UserDetails userDetails) throws IOException {
 
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/courses/" + id;
+        }
+
         User author = userService.findByEmail(userDetails.getUsername());
-        threadService.createThread(id, title, content, author, file);
+        threadService.createThread(id, request.getTitle(), request.getContent(), author, request.getFile());
 
         return "redirect:/courses/" + id;
     }
@@ -102,17 +111,23 @@ public class CourseController {
 
     // create a new course (prof/admin only)
     @PostMapping("/create")
-    public String createCourse(@RequestParam String title,
-                               @RequestParam String courseCode,
-                               @RequestParam String description,
+    public String createCourse(@Valid @ModelAttribute CourseCreateRequest request,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes,
                                @AuthenticationPrincipal UserDetails userDetails) {
+                               
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/dashboard";
+        }
+        
         User professor = userService.findByEmail(userDetails.getUsername());
 
         if (professor.getRole() == Role.STUDENT) {
             throw new IllegalStateException("Only professors can create courses!");
         }
 
-        courseService.createCourse(title, courseCode, description, professor.getId());
+        courseService.createCourse(request.getTitle(), request.getCourseCode(), request.getDescription(), professor.getId());
         return "redirect:/dashboard";
     }
 
@@ -142,13 +157,19 @@ public class CourseController {
 
     @PostMapping("{id}/update")
     public String updateCourse(@PathVariable Long id,
-                               @RequestParam String title,
-                               @RequestParam String courseCode,
-                               @RequestParam String description,
+                               @Valid @ModelAttribute CourseCreateRequest request,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes,
                                @AuthenticationPrincipal UserDetails userDetails) {
+                               
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/courses/" + id + "/edit";
+        }
+        
         User user = userService.findByEmail(userDetails.getUsername());
 
-        courseService.updateCourse(id, title, description, courseCode, user);
+        courseService.updateCourse(id, request.getTitle(), request.getDescription(), request.getCourseCode(), user);
         return "redirect:/courses/" + id;
     }
 

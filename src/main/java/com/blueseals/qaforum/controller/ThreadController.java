@@ -16,6 +16,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+import com.blueseals.qaforum.dto.*;
 
 import java.io.IOException;
 
@@ -53,12 +57,18 @@ public class ThreadController {
     // handle reply submission
     @PostMapping("/thread/{id}/reply")
     public String postReply(@PathVariable Long id,
-                            @RequestParam String content,
-                            @RequestParam(required = false) MultipartFile file,
+                            @Valid @ModelAttribute ReplyCreateRequest request,
+                            BindingResult bindingResult,
+                            RedirectAttributes redirectAttributes,
                             @AuthenticationPrincipal UserDetails userDetails) throws IOException {
 
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/thread/" + id;
+        }
+
         User author = userService.findByEmail(userDetails.getUsername());
-        threadService.addReply(id, content, author, file);
+        threadService.addReply(id, request.getContent(), author, request.getFile());
 
         return "redirect:/thread/" + id;
     }
@@ -128,11 +138,20 @@ public class ThreadController {
 
     @PostMapping("post/{id}/comment")
     public String comment(@PathVariable Long id,
-                          @RequestParam String comment,
+                          @Valid @ModelAttribute CommentRequest request,
+                          BindingResult bindingResult,
+                          RedirectAttributes redirectAttributes,
                           @AuthenticationPrincipal UserDetails userDetails) {
-        User author = userService.findByEmail(userDetails.getUsername());
+                          
         Post post = threadService.getPostById(id);
-        threadService.addComment(id, comment, author);
+        
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", bindingResult.getAllErrors().get(0).getDefaultMessage());
+            return "redirect:/thread/" + post.getThread().getId();
+        }
+        
+        User author = userService.findByEmail(userDetails.getUsername());
+        threadService.addComment(id, request.getComment(), author);
         return "redirect:/thread/" + post.getThread().getId();
     }
 
