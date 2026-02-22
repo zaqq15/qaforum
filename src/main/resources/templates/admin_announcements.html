@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Send Announcement - Askademic</title>
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -207,18 +210,19 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <a href="/dashboard" class="back-link">
-        <span>←</span>
-        <span>Back to Dashboard</span>
-    </a>
+    <div class="container">
+        <a href="/dashboard" class="back-link">
+            <span>←</span>
+            <span>Back to Dashboard</span>
+        </a>
 
-    <div class="page-header">
-        <h1>📢 Send Global Announcement</h1>
-        <p>Broadcast a message to all users currently online</p>
-    </div>
+        <div class="page-header">
+            <h1>📢 Send Global Announcement</h1>
+            <p>Broadcast a message to all users currently online</p>
+        </div>
 
 
         <div id="alert-container"></div>
@@ -226,12 +230,9 @@
         <form id="broadcastForm">
             <div class="form-group">
                 <label class="form-label">Announcement Message</label>
-                <textarea
-                        id="messageInput"
-                        class="form-control"
-                        placeholder="e.g., ⚠️ System maintenance scheduled for tonight at 11 PM EST"
-                        required
-                        maxlength="200"></textarea>
+                <textarea id="messageInput" class="form-control"
+                    placeholder="e.g., ⚠️ System maintenance scheduled for tonight at 11 PM EST" required
+                    maxlength="200"></textarea>
                 <div class="char-count">
                     <span id="charCount">0</span> / 200 characters
                 </div>
@@ -249,91 +250,92 @@
             </button>
         </form>
     </div>
-</div>
+    </div>
 
-<script>
-    const messageInput = document.getElementById('messageInput');
-    const charCount = document.getElementById('charCount');
-    const previewToast = document.getElementById('previewToast');
-    const broadcastForm = document.getElementById('broadcastForm');
-    const alertContainer = document.getElementById('alert-container');
-    const sendBtn = document.getElementById('sendBtn');
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const charCount = document.getElementById('charCount');
+        const previewToast = document.getElementById('previewToast');
+        const broadcastForm = document.getElementById('broadcastForm');
+        const alertContainer = document.getElementById('alert-container');
+        const sendBtn = document.getElementById('sendBtn');
 
-    // Live preview and character count
-    messageInput.addEventListener('input', function() {
-        const length = this.value.length;
-        charCount.textContent = length;
+        // Live preview and character count
+        messageInput.addEventListener('input', function () {
+            const length = this.value.length;
+            charCount.textContent = length;
 
-        if (this.value.trim()) {
-            previewToast.textContent = 'SYSTEM: ' + this.value;
-        } else {
-            previewToast.textContent = 'SYSTEM: Your message will appear here...';
-        }
-    });
-
-    // Handle form submission
-    broadcastForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const message = messageInput.value.trim();
-        if (!message) return;
-
-        // Disable button
-        sendBtn.disabled = true;
-        sendBtn.textContent = 'Sending...';
-
-        try {
-            // Get CSRF token from meta tag or hidden input
-            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') ||
-                document.querySelector('input[name="_csrf"]')?.value;
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
-
-            const headers = {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            };
-
-            if (csrfToken) {
-                headers[csrfHeader] = csrfToken;
+            if (this.value.trim()) {
+                previewToast.textContent = 'SYSTEM: ' + this.value;
+            } else {
+                previewToast.textContent = 'SYSTEM: Your message will appear here...';
             }
+        });
 
-            const response = await fetch('/admin/broadcast', {
-                method: 'POST',
-                headers: headers,
-                body: 'message=' + encodeURIComponent(message)
-            });
+        // Handle form submission
+        broadcastForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-            if (response.ok) {
-                const result = await response.text();
-                alertContainer.innerHTML = `
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Disable button
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            try {
+                // Get CSRF token from meta tag or hidden input
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') ||
+                    document.querySelector('input[name="_csrf"]')?.value;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+                const headers = {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                };
+
+                if (csrfToken) {
+                    headers[csrfHeader] = csrfToken;
+                }
+
+                const response = await fetch('/admin/broadcast', {
+                    method: 'POST',
+                    headers: headers,
+                    body: 'message=' + encodeURIComponent(message)
+                });
+
+                if (response.ok) {
+                    const result = await response.text();
+                    alertContainer.innerHTML = `
                     <div class="alert alert-success">
                         ✓ ${result}
                     </div>
                 `;
-                messageInput.value = '';
-                charCount.textContent = '0';
-                previewToast.textContent = 'SYSTEM: Your message will appear here...';
-            } else {
-                const errorText = await response.text();
-                throw new Error('Server returned: ' + response.status + ' - ' + errorText);
-            }
-        } catch (error) {
-            console.error('Error details:', error);
-            alertContainer.innerHTML = `
+                    messageInput.value = '';
+                    charCount.textContent = '0';
+                    previewToast.textContent = 'SYSTEM: Your message will appear here...';
+                } else {
+                    const errorText = await response.text();
+                    throw new Error('Server returned: ' + response.status + ' - ' + errorText);
+                }
+            } catch (error) {
+                console.error('Error details:', error);
+                alertContainer.innerHTML = `
                 <div class="alert alert-danger">
                     ✗ Failed to send announcement: ${error.message}<br>
                     <small>Check browser console for details</small>
                 </div>
             `;
-        } finally {
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'Send Announcement';
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send Announcement';
 
-            setTimeout(() => {
-                alertContainer.innerHTML = '';
-            }, 8000);
-        }
-    });
-</script>
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 8000);
+            }
+        });
+    </script>
 
 </body>
+
 </html>
