@@ -37,6 +37,31 @@ public class UserController {
         return "profile";
     }
 
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("request", new UserRegistrationRequest());
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String registerUser(@Valid @ModelAttribute("request") UserRegistrationRequest request,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+
+        try {
+            userService.registerUser(request);
+            redirectAttributes.addFlashAttribute("success", "Registration successful! You can now log in.");
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            bindingResult.rejectValue("email", "error.request", e.getMessage());
+            return "register";
+        }
+    }
+
     @PostMapping("/profile/change-password")
     public String changePassword(@AuthenticationPrincipal UserDetails userDetails,
                                  @Valid @ModelAttribute PasswordChangeRequest request,

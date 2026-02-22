@@ -61,6 +61,8 @@ public class MainController {
                         .collect(Collectors.toList());
 
         model.addAttribute("username", userDetails.getUsername());
+        String firstName = currentUser.getFullName() != null ? currentUser.getFullName().split(" ")[0] : "User";
+        model.addAttribute("firstName", firstName);
         model.addAttribute("myCourses", myCourses);
         model.addAttribute("availableCourses", availableCourses);
 

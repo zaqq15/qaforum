@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: qaforum_db
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
       - 3307:3306
     volumes:
@@ -20,9 +20,11 @@ services:
       - 8080:8080
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/qaforum_db?createDatabaseIfNotExist=true&useSSL=false&AllowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       - mysql-db
 

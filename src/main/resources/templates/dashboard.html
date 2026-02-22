@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <title>Dashboard - Askademic</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
@@ -438,186 +440,213 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- Navigation -->
-<nav class="navbar">
-    <div class="navbar-content">
-        <div class="brand-section">
-            <div class="brand-icon">📚</div>
-            <div class="welcome-text">
-                <h1>Welcome, <span th:text="${username}">User</span>!</h1>
-                <p>Explore your courses and discussions</p>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="brand-section">
+                <div class="brand-icon">📚</div>
+                <div class="welcome-text">
+                    <h1>Welcome, <span th:text="${firstName}">User</span>!</h1>
+                    <p>Explore your courses and discussions</p>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <a href="/shop" class="btn btn-warning-custom">🎁 Rewards Shop</a>
+
+                <!-- Admin Dropdown -->
+                <div class="dropdown" sec:authorize="hasRole('ADMIN')">
+                    <button class="btn btn-outline-custom dropdown-toggle" type="button" id="adminDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        ⚙️ Admin
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown"
+                        style="border-radius: 12px; border: 1px solid var(--gray-200); box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-top: 8px;">
+                        <li><a class="dropdown-item" href="/admin/announcements"
+                                style="padding: 10px 16px; font-size: 14px; font-weight: 500;">📢 Send Announcement</a>
+                        </li>
+                        <li><a class="dropdown-item" href="/admin/users"
+                                style="padding: 10px 16px; font-size: 14px; font-weight: 500;">👥 User Management</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <a href="/profile" class="btn btn-outline-custom">My Profile</a>
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="btn btn-danger-outline">Logout</button>
+                </form>
             </div>
         </div>
+    </nav>
 
-        <div class="nav-actions">
-            <a href="/shop" class="btn btn-warning-custom">🎁 Rewards Shop</a>
-            <a href="/admin/announcements" class="btn btn-outline-custom" sec:authorize="hasRole('ADMIN')">
-                📢 Send Announcement
-            </a>
-            <a href="/profile" class="btn btn-outline-custom">My Profile</a>
-            <form th:action="@{/logout}" method="post" style="margin: 0;">
-                <button type="submit" class="btn btn-danger-outline">Logout</button>
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Flash Messages -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert"
+            style="border-radius: 12px; margin-bottom: 24px; background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 16px;">
+            <span th:text="${error}">Error message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert"
+            style="border-radius: 12px; margin-bottom: 24px; background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px;">
+            <span th:text="${success}">Success message</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
+        </div>
+
+        <!-- Create Course Section (Professors/Admins Only) -->
+        <div class="section-card" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
+            <div class="section-header">
+                <h2>Course Management</h2>
+            </div>
+
+            <form th:action="@{/courses/create}" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Course Title</label>
+                        <input type="text" class="form-control" name="title"
+                            placeholder="e.g., Introduction to Computer Science" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Course Code</label>
+                        <input type="text" class="form-control" name="courseCode" placeholder="e.g., CS-101" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" placeholder="Brief description of the course..."
+                        required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary-custom">
+                    Create Course
+                </button>
             </form>
         </div>
-    </div>
-</nav>
 
-<!-- Main Content -->
-<div class="main-content">
-
-    <!-- Flash Messages -->
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; margin-bottom: 24px; background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 16px;">
-        <span th:text="${error}">Error message</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
-    </div>
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; margin-bottom: 24px; background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 16px;">
-        <span th:text="${success}">Success message</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 50%; transform: translateY(-50%); right: 10px;"></button>
-    </div>
-
-    <!-- Create Course Section (Professors/Admins Only) -->
-    <div class="section-card" sec:authorize="hasRole('PROFESSOR') or hasRole('ADMIN')">
-        <div class="section-header">
-            <h2>Course Management</h2>
-        </div>
-
-        <form th:action="@{/courses/create}" method="post">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Course Title</label>
-                    <input type="text" class="form-control" name="title" placeholder="e.g., Introduction to Computer Science" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Course Code</label>
-                    <input type="text" class="form-control" name="courseCode" placeholder="e.g., CS-101" required>
-                </div>
+        <!-- My Courses Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2>My Courses</h2>
             </div>
-            <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" name="description" placeholder="Brief description of the course..." required></textarea>
+
+            <div th:if="${myCourses == null or myCourses.empty}" class="empty-state">
+                <div class="empty-icon">📚</div>
+                <p sec:authorize="hasRole('STUDENT')">You are not enrolled in any courses yet. Browse available courses
+                    below!</p>
+                <p sec:authorize="hasRole('PROFESSOR')">You are not teaching any courses yet. Create one to get started!
+                </p>
             </div>
-            <button type="submit" class="btn btn-primary-custom">
-                Create Course
-            </button>
-        </form>
-    </div>
 
-    <!-- My Courses Section -->
-    <div class="section-card">
-        <div class="section-header">
-            <h2>My Courses</h2>
-        </div>
-
-        <div th:if="${myCourses == null or myCourses.empty}" class="empty-state">
-            <div class="empty-icon">📚</div>
-            <p sec:authorize="hasRole('STUDENT')">You are not enrolled in any courses yet. Browse available courses below!</p>
-            <p sec:authorize="hasRole('PROFESSOR')">You are not teaching any courses yet. Create one to get started!</p>
-        </div>
-
-        <div class="course-grid" th:if="${myCourses != null and !myCourses.empty}">
-            <a th:href="@{/courses/{id}(id=${course.id})}" class="course-card-link" th:each="course : ${myCourses}">
-                <div class="course-card">
-                    <div class="course-header">
-                        <div>
-                            <h3 class="course-title">
-                                <span th:text="${course.title}">Course Name</span>
-                            </h3>
+            <div class="course-grid" th:if="${myCourses != null and !myCourses.empty}">
+                <a th:href="@{/courses/{id}(id=${course.id})}" class="course-card-link" th:each="course : ${myCourses}">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div>
+                                <h3 class="course-title">
+                                    <span th:text="${course.title}">Course Name</span>
+                                </h3>
+                            </div>
+                            <span class="course-code" th:text="${course.courseCode}">CODE</span>
                         </div>
-                        <span class="course-code" th:text="${course.courseCode}">CODE</span>
-                    </div>
-                    <p class="course-description" th:text="${course.description}">Course description goes here...</p>
-                    <div class="course-meta">
-                        <span>👨‍🏫 <span th:text="${course.professor != null ? course.professor.fullName : 'None'}">Instructor</span></span>
-                        <span class="instructor-badge" sec:authorize="hasRole('PROFESSOR')">Instructor</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Available Courses Section (For Students) -->
-    <div class="section-card" sec:authorize="hasRole('STUDENT')">
-        <div class="section-header">
-            <h2>Available Courses</h2>
-        </div>
-
-        <div th:if="${availableCourses == null or availableCourses.empty}" class="empty-state">
-            <div class="empty-icon"></div>
-            <p>No other courses available at this time.</p>
-        </div>
-
-        <div th:if="${availableCourses != null and !availableCourses.empty}">
-            <div class="course-list-item" th:each="course : ${availableCourses}">
-                <div class="course-list-content">
-                    <div class="course-list-info">
-                        <h3 th:text="${course.title}">Course Name</h3>
-                        <div class="course-list-meta">
-                            <span th:text="${course.courseCode}">CODE</span>
-                            <span class="meta-divider">•</span>
-                            <span>👨‍🏫 <span th:text="${course.professor != null ? course.professor.fullName : 'None'}">Professor</span></span>
+                        <p class="course-description" th:text="${course.description}">Course description goes here...
+                        </p>
+                        <div class="course-meta">
+                            <span>👨‍🏫 <span
+                                    th:text="${course.professor != null ? course.professor.fullName : 'None'}">Instructor</span></span>
+                            <span class="instructor-badge" sec:authorize="hasRole('PROFESSOR')">Instructor</span>
                         </div>
                     </div>
-                    <form th:action="@{/courses/{id}/enroll(id=${course.id})}" method="post">
-                        <button type="submit" class="btn-enroll">Enroll Now</button>
-                    </form>
+                </a>
+            </div>
+        </div>
+
+        <!-- Available Courses Section (For Students) -->
+        <div class="section-card" sec:authorize="hasRole('STUDENT')">
+            <div class="section-header">
+                <h2>Available Courses</h2>
+            </div>
+
+            <div th:if="${availableCourses == null or availableCourses.empty}" class="empty-state">
+                <div class="empty-icon"></div>
+                <p>No other courses available at this time.</p>
+            </div>
+
+            <div th:if="${availableCourses != null and !availableCourses.empty}">
+                <div class="course-list-item" th:each="course : ${availableCourses}">
+                    <div class="course-list-content">
+                        <div class="course-list-info">
+                            <h3 th:text="${course.title}">Course Name</h3>
+                            <div class="course-list-meta">
+                                <span th:text="${course.courseCode}">CODE</span>
+                                <span class="meta-divider">•</span>
+                                <span>👨‍🏫 <span
+                                        th:text="${course.professor != null ? course.professor.fullName : 'None'}">Professor</span></span>
+                            </div>
+                        </div>
+                        <form th:action="@{/courses/{id}/enroll(id=${course.id})}" method="post">
+                            <button type="submit" class="btn-enroll">Enroll Now</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 
-</div>
+    <!-- Notification Toast Container -->
+    <div id="notification-toast" style="position: fixed; top: 80px; right: 20px; z-index: 9999;"></div>
 
-<!-- Notification Toast Container -->
-<div id="notification-toast" style="position: fixed; top: 80px; right: 20px; z-index: 9999;"></div>
+    <!-- WebSocket Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        var stompClient = null;
+        var currentUserEmail = /*[[${username}]]*/ 'user';
 
-<!-- WebSocket Script -->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    var stompClient = null;
-    var currentUserEmail = /*[[${username}]]*/ 'user';
+        function connect() {
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
 
-    function connect() {
-        var socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
+                // 1. Private User Notifications (Replies)
+                stompClient.subscribe('/user/queue/notifications', function (notification) {
+                    showNotification(notification.body, 'primary');
+                });
 
-            // 1. Private User Notifications (Replies)
-            stompClient.subscribe('/user/queue/notifications', function (notification) {
-                showNotification(notification.body, 'primary');
+                // 2. Global Announcements - Async Threaded (with delay)
+                stompClient.subscribe('/topic/announcements', function (notification) {
+                    showNotification(notification.body, 'danger');
+                });
+
+                // 3. Global Notifications - Instant
+                stompClient.subscribe('/topic/global', function (notification) {
+                    showNotification(notification.body, 'danger');
+                });
+            }, function (error) {
+                console.log('WebSocket connection error: ' + error);
+                // Retry connection after 5 seconds
+                setTimeout(connect, 5000);
             });
-
-            // 2. Global Announcements - Async Threaded (with delay)
-            stompClient.subscribe('/topic/announcements', function (notification) {
-                showNotification(notification.body, 'danger');
-            });
-
-            // 3. Global Notifications - Instant
-            stompClient.subscribe('/topic/global', function (notification) {
-                showNotification(notification.body, 'danger');
-            });
-        }, function(error) {
-            console.log('WebSocket connection error: ' + error);
-            // Retry connection after 5 seconds
-            setTimeout(connect, 5000);
-        });
-    }
-
-    function showNotification(message, type) {
-        var gradient = '';
-        if (type === 'primary') {
-            gradient = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)';
-        } else if (type === 'danger') {
-            gradient = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-        } else if (type === 'success') {
-            gradient = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
         }
 
-        var toastHTML = `
+        function showNotification(message, type) {
+            var gradient = '';
+            if (type === 'primary') {
+                gradient = 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)';
+            } else if (type === 'danger') {
+                gradient = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+            } else if (type === 'success') {
+                gradient = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            }
+
+            var toastHTML = `
             <div class="toast show align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
                  style="background: ${gradient}; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); margin-bottom: 10px;">
               <div class="d-flex">
@@ -629,26 +658,27 @@
             </div>
         `;
 
-        var container = document.getElementById("notification-toast");
-        var tempDiv = document.createElement('div');
-        tempDiv.innerHTML = toastHTML;
-        container.appendChild(tempDiv.firstElementChild);
+            var container = document.getElementById("notification-toast");
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = toastHTML;
+            container.appendChild(tempDiv.firstElementChild);
 
-        // Auto hide after 5s
-        setTimeout(() => {
-            var toasts = container.querySelectorAll('.toast');
-            if (toasts.length > 0) {
-                toasts[toasts.length - 1].classList.remove('show');
-                setTimeout(() => toasts[toasts.length - 1].remove(), 300);
-            }
-        }, 5000);
-    }
+            // Auto hide after 5s
+            setTimeout(() => {
+                var toasts = container.querySelectorAll('.toast');
+                if (toasts.length > 0) {
+                    toasts[toasts.length - 1].classList.remove('show');
+                    setTimeout(() => toasts[toasts.length - 1].remove(), 300);
+                }
+            }, 5000);
+        }
 
-    // Connect on load
-    window.addEventListener('load', function() {
-        connect();
-    });
-</script>
+        // Connect on load
+        window.addEventListener('load', function () {
+            connect();
+        });
+    </script>
 
 </body>
+
 </html>
